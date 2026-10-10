@@ -1,0 +1,8 @@
+# Git: only documentation is tracked
+# The skill source (skill/, bin/, package.json) ships via the npm package,
+# not through this repository. docs/ and README.md are the public docs.
+*
+!.gitignore
+!/README.md
+!/docs/
+!/docs/**
