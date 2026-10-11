@@ -55,9 +55,28 @@ Other agents: change `DEST` (e.g. `~/.config/claude/skills/…` for Claude Code,
 
 ## Add your license key or admin credentials
 
-Pick one — the skill's gate checks them in this order.
+Pick one — the skill's gate looks for environment variables first, then the installer's config file, then asks you once.
 
-**1. Environment variable (recommended)**
+**1. Install the AnimotionJS skill with your key (recommended — one command, everything wired)**
+
+```bash
+npx animotion-skills install --tier=agentic --agent=<your-agent> --license-key=YOUR_KEY
+
+# or install for every detected agent at once:
+npx animotion-skills install --tier=agentic --all --license-key=YOUR_KEY
+```
+
+With **admin credentials instead of a license key** (Animotion staff / whitelisted emails only):
+
+```bash
+npx animotion-skills install --tier=agentic --agent=<your-agent> --admin-email=you@example.com --admin-secret=YOUR_ADMIN_SECRET
+```
+
+`<your-agent>` is one of the 15 supported agents (`opencode`, `claude`, `copilot`, `cursor`, … — full list in [INSTALL.md](INSTALL.md)). This installs the AnimotionJS animation skill (you need it at Stage 8 anyway) **and** writes `animotion-config.json` next to it — the agentic-web-developer gate reads that file automatically, so nothing else to configure.
+
+> Note: this installer's `agentic` tier requires the **Studio plan** ($15/month). On the **Pro plan** only ($7/month), use options 2–4 instead — the gate itself accepts any active Pro key.
+
+**2. Environment variable**
 
 ```bash
 # bash / zsh — add to ~/.bashrc or ~/.zshrc
@@ -71,9 +90,7 @@ setx AGENTIC_LICENSE_KEY "sec_live_xxxxxxxx"
 
 `ANIMOTION_LICENSE_KEY` works as an alias — one variable can serve this skill and the Animotion installer.
 
-**2. `animotion-config.json` (shared with the Animotion skill installer)**
-
-If you installed the AnimotionJS skill with `--license-key=…`, the key is already on disk: the installer writes `animotion-config.json` next to the installed skill, and the gate reads it from the agentic-web-developer skill directory, its parent (`~/.config/opencode/skills/` for opencode), `~/.animotion-skills/`, or the path in `AGENTIC_LICENSE_CONFIG`. To create one yourself:
+**3. `animotion-config.json` by hand** — same file the installer writes. The gate reads it from the agentic-web-developer skill directory, its parent (`~/.config/opencode/skills/` for opencode), `~/.animotion-skills/`, or the path in `AGENTIC_LICENSE_CONFIG`:
 
 ```json
 {
@@ -84,11 +101,9 @@ If you installed the AnimotionJS skill with `--license-key=…`, the key is alre
 }
 ```
 
-**3. Admin credentials (Animotion staff / whitelisted emails only)**
+**4. Admin credentials via environment** (Animotion staff / whitelisted emails only) — env vars `AGENTIC_ADMIN_EMAIL` + `AGENTIC_ADMIN_SECRET`, or a config file with `"authMethod": "admin"` and `adminEmail` / `adminSecret` fields (installer-written files store the secret encrypted as `adminSecretEncrypted` + `encryptionKey`; the gate decrypts those automatically). Never commit these — prefer a personal Pro key for day-to-day work.
 
-Same pair the license backend uses — provide via env vars `AGENTIC_ADMIN_EMAIL` + `AGENTIC_ADMIN_SECRET`, or a config file with `"authMethod": "admin"` and `adminEmail` / `adminSecret` fields (installer-written files store the secret encrypted as `adminSecretEncrypted` + `encryptionKey`; the gate decrypts those automatically). Never commit these — prefer a personal Pro key for day-to-day work.
-
-**4. Ask in-session**
+**5. Ask in-session**
 
 With nothing found, the skill asks once (via its question tool) — paste the key, it validates immediately and remembers it via the cache below.
 

@@ -68,9 +68,28 @@ The skill ships behind the **Animotion Pro plan — $7/month**. One validation p
 
 ### How to give the skill your key (or admin credentials)
 
-Pick one — the gate checks them in this order:
+Pick one — the gate looks for environment variables first, then the installer's config file, then asks you once:
 
-**1. Environment variable (recommended)**
+**1. Install the AnimotionJS skill with your key (recommended — one command, everything wired)**
+
+```bash
+npx animotion-skills install --tier=agentic --agent=<your-agent> --license-key=YOUR_KEY
+
+# or install for every detected agent at once:
+npx animotion-skills install --tier=agentic --all --license-key=YOUR_KEY
+```
+
+With **admin credentials instead of a license key** (Animotion staff / whitelisted emails only):
+
+```bash
+npx animotion-skills install --tier=agentic --agent=<your-agent> --admin-email=you@example.com --admin-secret=YOUR_ADMIN_SECRET
+```
+
+`<your-agent>` is one of the [15 supported agents](#supported-agents) — `opencode`, `claude`, `copilot`, `cursor`, … This installs the AnimotionJS animation skill (you need it at Stage 8 anyway) **and** writes `animotion-config.json` next to it — the agentic-web-developer gate reads that file automatically, so nothing else to configure.
+
+> Note: this installer's `agentic` tier requires the **Studio plan** ($15/month). If you're on **Pro only** ($7/month), use options 2–4 below instead — the gate itself accepts any active Pro key.
+
+**2. Environment variable**
 
 ```bash
 # bash / zsh — add to ~/.bashrc or ~/.zshrc
@@ -84,7 +103,7 @@ setx AGENTIC_LICENSE_KEY "sec_live_xxxxxxxx"
 
 `ANIMOTION_LICENSE_KEY` works as an alias — one variable serves this skill and the Animotion installer.
 
-**2. `animotion-config.json`** — the file the Animotion installer writes (next to the installed skill, its parent dir, `~/.animotion-skills/`, or the path in `AGENTIC_LICENSE_CONFIG`):
+**3. `animotion-config.json` by hand** — same file the installer writes (gate search paths: the skill directory, its parent dir, `~/.animotion-skills/`, or the path in `AGENTIC_LICENSE_CONFIG`):
 
 ```json
 {
@@ -95,9 +114,9 @@ setx AGENTIC_LICENSE_KEY "sec_live_xxxxxxxx"
 }
 ```
 
-**3. Admin credentials (Animotion staff / whitelisted emails only)** — env vars `AGENTIC_ADMIN_EMAIL` + `AGENTIC_ADMIN_SECRET`, or a config file with `"authMethod": "admin"` and `adminEmail` / `adminSecret`. Never commit these; everyone else should use a personal Pro key.
+**4. Admin credentials via environment** (Animotion staff / whitelisted emails only) — `AGENTIC_ADMIN_EMAIL` + `AGENTIC_ADMIN_SECRET`. Never commit these; everyone else should use a personal Pro key.
 
-**4. Ask in-session** — with nothing found, the skill asks once (via its question tool); paste the key and it validates immediately.
+**5. Ask in-session** — with nothing found, the skill asks once (via its question tool); paste the key and it validates immediately.
 
 ### What happens at runtime
 
