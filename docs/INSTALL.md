@@ -22,6 +22,8 @@ npx agentic-web-developer detect
 
 Then **restart your AI agent** so it loads the skill.
 
+> **License:** the skill is gated by the Animotion **Pro plan ($7/month)** — on first run it validates your key (or admin credentials) once per session before any work. Paying, downloading the files directly with a key, and wiring credentials up: **[LICENSING.md](LICENSING.md)**.
+
 ### All flags
 
 | Flag | Effect |

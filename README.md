@@ -4,16 +4,18 @@ An **agentic skill** that turns an AI coding agent into a complete web-developme
 
 Plus a **novel-idea / product-launch mode** for websites not covered by the videos (SaaS, products, marketplaces).
 
-And advance 3D animated website.
+And a **Mode C** for advanced 3D / WebGL sites — cinematic Three.js builds in the style of Kage and Towers.
 
+> **Licensed — Pro plan ($7/month).** The skill validates an Animotion **Pro key** (or staff admin credentials) once per session before doing any work. [![Get Pro — $7/mo](https://img.shields.io/badge/Get_Pro-%247%2Fmonth-38ED26)](https://skills.animotion.click/checkout?plan=pro) [![Get Studio — $15/mo](https://img.shields.io/badge/Get_Studio-%2415%2Fmonth-222222)](https://skills.animotion.click/checkout?plan=studio) — payment steps, install-with-key commands and credential setup: **[License & unlocking](#license--unlocking-the-skill)** · full guide **[docs/LICENSING.md](docs/LICENSING.md)**.
 
 ## What you get
 
 - **Stage-gated pipeline** (Intake → Niche → Research → Design → Build → QA → Animation handoff → Deploy → Sell) where the agent **asks for your input at every step** — it never runs ahead on assumptions.
+- **Three modes** — Mode A build-and-sell, Mode B novel idea / product launch, Mode C advanced 3D / WebGL experience.
 - **Design-tool agnostic** — Figma, Paper, Google Stitch, Google AI Studio, Framer or code-first. You supply the credentials/MCP for your tool of choice.
 - **Framework agnostic** — Next.js, React, Vue, Svelte, Astro, plain HTML, WordPress, GoHighLevel — you pick.
 - **All animation is delegated** to the [AnimotionJS agentic skill](https://skills.animotion.click/checkout) — this skill never writes animation code itself.
-- 10 reference playbooks + 4 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy).
+- 11 reference playbooks + 5 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief).
 
 ## Install
 
@@ -38,6 +40,8 @@ Other flags: `--force` (overwrite), `--dry-run` (print targets only), `--dir=<pa
 
 Then **restart your AI agent** so it loads the skill.
 
+> **On first run the skill asks for its Pro license key** (or admin credentials) and validates it once per session — see [License & unlocking](#license--unlocking-the-skill) before you start a project.
+
 > **Where does the skill come from?** Not from npm — the package ships only the installer and docs. The installer fetches the skill from a source you configure (`--source`, `AWD_SOURCE`, or the author's `awd.source` in `package.json`). See [docs/INSTALL.md § Skill source](docs/INSTALL.md#skill-source).
 
 ### Supported agents
@@ -49,6 +53,57 @@ The installer writes **each agent's own file format** with the right frontmatter
 ### Manual install (no CLI)
 
 See **[docs/INSTALL.md](docs/INSTALL.md#manual-install-no-cli)** — per-agent copy instructions for all 15 agents.
+
+## License & unlocking the skill
+
+The skill ships behind the **Animotion Pro plan — $7/month**. One validation per session (cached 7 days) runs before any pipeline work; without it the skill refuses to start.
+
+### How to pay for Pro
+
+1. **Click a Get Pro button** (top of this README or above) — opens [`skills.animotion.click/checkout?plan=pro`](https://skills.animotion.click/checkout?plan=pro) with Pro preselected ($7/month). Studio ($15/month) also unlocks this skill *and* the AnimotionJS animation skill you need at Stage 8.
+2. **Enter your email** — the license is tied to it.
+3. **Continue to Payment** → Stripe's hosted checkout (card).
+4. **Confirm** — monthly, cancel anytime.
+5. **Copy your key** (`sec_live_…`) from the confirmation page.
+
+### How to give the skill your key (or admin credentials)
+
+Pick one — the gate checks them in this order:
+
+**1. Environment variable (recommended)**
+
+```bash
+# bash / zsh — add to ~/.bashrc or ~/.zshrc
+export AGENTIC_LICENSE_KEY="sec_live_xxxxxxxx"
+```
+
+```powershell
+# PowerShell — persistent (open a new terminal afterwards)
+setx AGENTIC_LICENSE_KEY "sec_live_xxxxxxxx"
+```
+
+`ANIMOTION_LICENSE_KEY` works as an alias — one variable serves this skill and the Animotion installer.
+
+**2. `animotion-config.json`** — the file the Animotion installer writes (next to the installed skill, its parent dir, `~/.animotion-skills/`, or the path in `AGENTIC_LICENSE_CONFIG`):
+
+```json
+{
+  "tier": "pro",
+  "requiredPlan": "pro",
+  "authMethod": "license",
+  "licenseKey": "sec_live_xxxxxxxx"
+}
+```
+
+**3. Admin credentials (Animotion staff / whitelisted emails only)** — env vars `AGENTIC_ADMIN_EMAIL` + `AGENTIC_ADMIN_SECRET`, or a config file with `"authMethod": "admin"` and `adminEmail` / `adminSecret`. Never commit these; everyone else should use a personal Pro key.
+
+**4. Ask in-session** — with nothing found, the skill asks once (via its question tool); paste the key and it validates immediately.
+
+### What happens at runtime
+
+The skill calls `POST https://skills.animotion.click/api/license/validate` with `{ "skill": "agentic-web-developer", "plan": "pro" }` and your key (or admin pair). On success the verdict is cached at `~/.animotion-skills/cache/agentic-web-developer-verdict.json` for 7 days; offline sessions reuse a fresh cache. Full troubleshooting (invalid key, wrong plan, expired cache, local dev server): **[docs/LICENSING.md](docs/LICENSING.md)**.
+
+You can also download the skill files directly with your key or admin pair — copy-paste commands in [docs/LICENSING.md § Install the skill files](docs/LICENSING.md#install-the-skill-files-license-key-or-admin-credentials).
 
 ## Animations are a separate skill (required to finish a site)
 
@@ -71,9 +126,10 @@ Just talk to your agent:
 
 > "Build me a website that converts for my pool cleaning business"
 > "Launch a product website for my new SaaS idea"
+> "Build me an immersive 3D website"
 > "Use the agentic-web-developer skill"
 
-The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea), then walks you through every gate.
+The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea, Mode C: advanced 3D/WebGL), then walks you through every gate.
 
 ## Project layout
 
@@ -83,11 +139,12 @@ agentic-web-developer/
 ├── bin/install.js        # zero-dependency installer CLI (all 15 agents, per-agent formats)
 ├── skill/                # ← the skill itself (source of truth; never published)
 │   ├── SKILL.md
-│   ├── references/       # 10 playbooks
-│   └── templates/        # 4 fill-in templates
+│   ├── references/       # 11 playbooks (incl. licensing.md)
+│   └── templates/        # 5 fill-in templates (incl. 3D scene brief)
 ├── docs/                 # ← the only content tracked in Git
 │   ├── INSTALL.md        # install guide for all 15 agents
-│   └── EXAMPLES.md       # worked walkthroughs: Mode A + Mode B
+│   ├── EXAMPLES.md       # worked walkthroughs: Mode A + Mode B
+│   └── LICENSING.md      # Pro plan, payment steps, key/admin credentials
 └── README.md             # ← tracked in Git
 ```
 
