@@ -1,11 +1,11 @@
 # agentic-web-developer
 
-An **agentic skill** that turns an AI coding agent into a complete web-development and website-selling system — distilled from Jack Roberts' two videos:
-
-1. **"How I build $10,000 AI Websites in 17 mins (Google AI Studio 2.0)"** — design DNA extraction (builder brief, scaffold, tokens), outlier competitor research (top-5 vs bottom-5), the conversion blueprint.
-2. **"How I Build & Sell $8,000 AI Websites (AntiGravity + Stitch)"** — the M.O.N.E.Y framework, lead generation, the config-driven cloning system, outreach emails, deployment and monetization.
+An **agentic skill** that turns an AI coding agent into a complete web-development and website-selling system
 
 Plus a **novel-idea / product-launch mode** for websites not covered by the videos (SaaS, products, marketplaces).
+
+And advance 3D animated website.
+
 
 ## What you get
 
