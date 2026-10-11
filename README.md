@@ -36,11 +36,11 @@ npx agentic-web-developer install --all
 npx agentic-web-developer detect
 ```
 
-Other flags: `--force` (overwrite), `--dry-run` (print targets only), `--dir=<path>` (custom destination), `--source=<url|path>` / `--token=<key>` (skill source).
+Other flags: `--license-key=<key>` (save your Pro key during install — see [License & unlocking](#license--unlocking-the-skill)), `--admin-email` / `--admin-secret` (staff), `--force` (overwrite), `--dry-run` (print targets only), `--dir=<path>` (custom destination), `--source=<url|path>` / `--token=<key>` (skill source).
 
 Then **restart your AI agent** so it loads the skill.
 
-> **On first run the skill asks for its Pro license key** (or admin credentials) and validates it once per session — see [License & unlocking](#license--unlocking-the-skill) before you start a project.
+> **On first run the skill asks for its Pro license key** (or admin credentials) and validates it once per session — or pass it up front with `--license-key=…` and skip the prompt. See [License & unlocking](#license--unlocking-the-skill).
 
 > **Where does the skill come from?** Not from npm — the package ships only the installer and docs. The installer fetches the skill from a source you configure (`--source`, `AWD_SOURCE`, or the author's `awd.source` in `package.json`). See [docs/INSTALL.md § Skill source](docs/INSTALL.md#skill-source).
 
@@ -70,24 +70,22 @@ The skill ships behind the **Animotion Pro plan — $7/month**. One validation p
 
 Pick one — the gate looks for environment variables first, then the installer's config file, then asks you once:
 
-**1. Install the AnimotionJS skill with your key (recommended — one command, everything wired)**
+**1. Install the skill with your key (recommended — one command, everything wired)**
 
 ```bash
-npx animotion-skills install --tier=agentic --agent=<your-agent> --license-key=YOUR_KEY
+npx agentic-web-developer install --agent=<your-agent> --license-key=YOUR_KEY
 
 # or install for every detected agent at once:
-npx animotion-skills install --tier=agentic --all --license-key=YOUR_KEY
+npx agentic-web-developer install --all --license-key=YOUR_KEY
 ```
 
 With **admin credentials instead of a license key** (Animotion staff / whitelisted emails only):
 
 ```bash
-npx animotion-skills install --tier=agentic --agent=<your-agent> --admin-email=you@example.com --admin-secret=YOUR_ADMIN_SECRET
+npx agentic-web-developer install --agent=<your-agent> --admin-email=you@example.com --admin-secret=YOUR_ADMIN_SECRET
 ```
 
-`<your-agent>` is one of the [15 supported agents](#supported-agents) — `opencode`, `claude`, `copilot`, `cursor`, … This installs the AnimotionJS animation skill (you need it at Stage 8 anyway) **and** writes `animotion-config.json` next to it — the agentic-web-developer gate reads that file automatically, so nothing else to configure.
-
-> Note: this installer's `agentic` tier requires the **Studio plan** ($15/month). If you're on **Pro only** ($7/month), use options 2–4 below instead — the gate itself accepts any active Pro key.
+`<your-agent>` is one of the [15 supported agents](#supported-agents) — `opencode`, `claude`, `copilot`, `cursor`, … The installer writes `animotion-config.json` into the installed skill folder with your key (or admin pair), and the gate reads that file automatically — nothing else to configure. The key must be on the **Pro plan** ($7/month) or higher.
 
 **2. Environment variable**
 

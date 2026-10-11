@@ -57,24 +57,22 @@ Other agents: change `DEST` (e.g. `~/.config/claude/skills/…` for Claude Code,
 
 Pick one — the skill's gate looks for environment variables first, then the installer's config file, then asks you once.
 
-**1. Install the AnimotionJS skill with your key (recommended — one command, everything wired)**
+**1. Install the skill with your key (recommended — one command, everything wired)**
 
 ```bash
-npx animotion-skills install --tier=agentic --agent=<your-agent> --license-key=YOUR_KEY
+npx agentic-web-developer install --agent=<your-agent> --license-key=YOUR_KEY
 
 # or install for every detected agent at once:
-npx animotion-skills install --tier=agentic --all --license-key=YOUR_KEY
+npx agentic-web-developer install --all --license-key=YOUR_KEY
 ```
 
 With **admin credentials instead of a license key** (Animotion staff / whitelisted emails only):
 
 ```bash
-npx animotion-skills install --tier=agentic --agent=<your-agent> --admin-email=you@example.com --admin-secret=YOUR_ADMIN_SECRET
+npx agentic-web-developer install --agent=<your-agent> --admin-email=you@example.com --admin-secret=YOUR_ADMIN_SECRET
 ```
 
-`<your-agent>` is one of the 15 supported agents (`opencode`, `claude`, `copilot`, `cursor`, … — full list in [INSTALL.md](INSTALL.md)). This installs the AnimotionJS animation skill (you need it at Stage 8 anyway) **and** writes `animotion-config.json` next to it — the agentic-web-developer gate reads that file automatically, so nothing else to configure.
-
-> Note: this installer's `agentic` tier requires the **Studio plan** ($15/month). On the **Pro plan** only ($7/month), use options 2–4 instead — the gate itself accepts any active Pro key.
+`<your-agent>` is one of the 15 supported agents (`opencode`, `claude`, `copilot`, `cursor`, … — full list in [INSTALL.md](INSTALL.md)). The installer writes `animotion-config.json` into the installed skill folder with your key (or admin pair), and the gate reads that file automatically — nothing else to configure. The key must be on the **Pro plan** ($7/month) or higher.
 
 **2. Environment variable**
 

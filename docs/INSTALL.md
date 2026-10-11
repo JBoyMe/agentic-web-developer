@@ -10,8 +10,8 @@ The skill installs into **15 AI coding agents** — the same 15 the AnimotionJS 
 # auto-detect your agent (opencode -> claude -> any detected agent)
 npx agentic-web-developer install
 
-# target one agent by key
-npx agentic-web-developer install --agent=claude
+# target one agent by key, with your Pro license key saved during install
+npx agentic-web-developer install --agent=claude --license-key=YOUR_KEY
 
 # install for every supported agent at once
 npx agentic-web-developer install --all
@@ -22,7 +22,7 @@ npx agentic-web-developer detect
 
 Then **restart your AI agent** so it loads the skill.
 
-> **License:** the skill is gated by the Animotion **Pro plan ($7/month)** — on first run it validates your key (or admin credentials) once per session before any work. Paying, downloading the files directly with a key, and wiring credentials up: **[LICENSING.md](LICENSING.md)**.
+> **License:** the skill is gated by the Animotion **Pro plan ($7/month)** — on first run it validates your key (or admin credentials) once per session before any work. Pass `--license-key=…` (or `--admin-email` / `--admin-secret`) at install time to wire the credential up front. Paying and full credential setup: **[LICENSING.md](LICENSING.md)**.
 
 ### All flags
 
@@ -32,6 +32,8 @@ Then **restart your AI agent** so it loads the skill.
 | `--agent=all` / `--all` | Install for all 15 agents |
 | `--source=<url\|path>` | Skill source: a `.tar.gz`/`.zip` URL, or a local skill folder/archive |
 | `--token=<key>` | Auth token for a private source (else `AWD_TOKEN`) |
+| `--license-key=<key>` | Save your Pro license key to the installed skill (`animotion-config.json` the gate reads) |
+| `--admin-email=<e>` `--admin-secret=<s>` | Admin credentials instead of a key (staff/whitelisted — both required) |
 | `--force` | Overwrite an existing install |
 | `--dry-run` | Print the target paths without writing anything |
 | `--dir=<path>` | Install flat into `<path>/agentic-web-developer/` (SKILL.md layout) |
