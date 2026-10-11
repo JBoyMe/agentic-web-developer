@@ -57,8 +57,8 @@ const AGENTS = {
   opencode: {
     name: "OpenCode",
     format: "skill",
-    roots: [path.join(HOME, ".config", "opencode"), path.join(HOME, ".opencode")],
-    dirs: [path.join(HOME, ".config", "opencode", "skills"), path.join(HOME, ".opencode", "skills")]
+    roots: [path.join(HOME, ".opencode"), path.join(HOME, ".config", "opencode")],
+    dirs: [path.join(HOME, ".opencode", "skills"), path.join(HOME, ".config", "opencode", "skills")]
   },
   claude: {
     name: "Claude Code",
