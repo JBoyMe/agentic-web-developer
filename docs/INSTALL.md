@@ -106,6 +106,16 @@ Get the skill folder itself (the package doesn't contain it — take it from you
 - **Continue / Augment / Amazon Q** — copy `skill/SKILL.md` to the agent's `rules/agentic-web-developer.md` (paths in the table), payload alongside in `skills/agentic-web-developer/`.
 - **Aider** — copy `skill/SKILL.md` (without its `---` frontmatter block) to `~/.aider/skills/CONVENTIONS.md`.
 
+## No local agent: Google AI Studio
+
+AI Studio has no file system to install into — the skill runs there via paste instead:
+
+1. Paste `SKILL.md` (below the frontmatter) into AI Studio's **System instructions**.
+2. Attach the reference files in the **Files panel** (they act as your repo).
+3. Build in **Canvas** as a single HTML file, then **Download the code** and deploy.
+
+Step-by-step, stage mapping, Mode notes and session hygiene: the skill's `references/google-ai-studio.md`.
+
 ## Verify
 
 ```bash
