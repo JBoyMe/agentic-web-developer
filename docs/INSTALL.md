@@ -108,13 +108,14 @@ Get the skill folder itself (the package doesn't contain it — take it from you
 
 ## No local agent: Google AI Studio
 
-AI Studio has no file system to install into — the skill runs there via paste instead:
+AI Studio has no file system to install into — the skill runs there via paste + URL fetch instead:
 
 1. Paste `SKILL.md` (below the frontmatter) into AI Studio's **System instructions**.
-2. Attach the reference files in the **Files panel** (they act as your repo).
-3. Build in **Canvas** as a single HTML file, then **Download the code** and deploy.
+2. Enable the **URL Context** tool — the skill uses it to validate your license and fetch each reference file from `skills.animotion.click` with your key (no env vars, no file attachments).
+3. Add your license key (or admin pair) to the System instructions, or paste it when the gate asks.
+4. Build in **Canvas** as a single HTML file, then **Download the code** and deploy.
 
-Step-by-step, stage mapping, Mode notes and session hygiene: the skill's `references/google-ai-studio.md`.
+Step-by-step, GET license URL, reference URL patterns and session hygiene: the skill's `references/google-ai-studio.md`.
 
 ## Verify
 

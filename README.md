@@ -40,7 +40,7 @@ Other flags: `--license-key=<key>` (save your Pro key during install — see [Li
 
 Then **restart your AI agent** so it loads the skill.
 
-> **No local agent? Run it in Google AI Studio.** Paste `SKILL.md` into **System instructions**, attach the reference files in the Files panel, and build in Canvas — full setup and the stage-by-stage mapping: `references/google-ai-studio.md` in the skill.
+> **No local agent? Run it in Google AI Studio.** Paste `SKILL.md` into **System instructions**, enable the **URL Context** tool (the skill fetches its reference files and validates your key from `skills.animotion.click` — no env vars or file attachments needed), add your key to the system instructions, and build in Canvas. Full setup + stage mapping: `references/google-ai-studio.md` in the skill.
 
 > **On first run the skill asks for its Pro license key** (or admin credentials) and validates it once per session — or pass it up front with `--license-key=…` and skip the prompt. See [License & unlocking](#license--unlocking-the-skill).
 
