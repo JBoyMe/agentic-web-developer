@@ -6,16 +6,21 @@ Plus a **novel-idea / product-launch mode** for websites not covered by the vide
 
 And a **Mode C** for advanced 3D / WebGL sites — cinematic Three.js builds in the style of Kage and Towers.
 
+Plus a **Mode D** for design-sketch intake — hand over your sketches/wireframes and the skill reads the pages and layouts off them, confirms an inventory, and runs only the stages needed.
+
 > **Licensed — Pro plan ($7/month).** The skill validates an Animotion **Pro key** (or staff admin credentials) once per session before doing any work. [![Get Pro — $7/mo](https://img.shields.io/badge/Get_Pro-%247%2Fmonth-38ED26)](https://skills.animotion.click/checkout?plan=pro) [![Get Studio — $15/mo](https://img.shields.io/badge/Get_Studio-%2415%2Fmonth-222222)](https://skills.animotion.click/checkout?plan=studio) — payment steps, install-with-key commands and credential setup: **[License & unlocking](#license--unlocking-the-skill)** · full guide **[docs/LICENSING.md](docs/LICENSING.md)**.
 
 ## What you get
 
 - **Stage-gated pipeline** (Intake → Niche → Research → Design → Build → QA → Animation handoff → Deploy → Sell) where the agent **asks for your input at every step** — it never runs ahead on assumptions.
-- **Three modes** — Mode A build-and-sell, Mode B novel idea / product launch, Mode C advanced 3D / WebGL experience.
+- **Four modes** — Mode A build-and-sell, Mode B novel idea / product launch, Mode C advanced 3D / WebGL experience, Mode D design-sketch intake.
+- **Dev-mode toolkit (opt-in, removable)** — a live CSS styling toolbar plus a prototyping toolbar (hotspots, viewport switcher, grid/measure, states, annotations), gated behind an ask-first question and wrapped in one flag / one marked block so it's fully stripped before production.
+- **Knowledge base** — 8 distilled technique files from Meng To's public skills (video → analysis prompts, interaction-prompt packs, full-page capture, inspiration bundles, the single-file demo contract, 16 3D techniques, 14 SVG illustration styles, ThreeUI components), indexed so the agent consults them instead of improvising.
+- **User's asks are law** — explicit requirements are implemented exactly as stated; the skill's own machinery (modes, research, toolkit) is offered, never forced.
 - **Design-tool agnostic** — Figma, Paper, Google Stitch, Google AI Studio, Framer or code-first. You supply the credentials/MCP for your tool of choice.
 - **Framework agnostic** — Next.js, React, Vue, Svelte, Astro, plain HTML, WordPress, GoHighLevel — you pick.
 - **All animation is delegated** to the [AnimotionJS agentic skill](https://skills.animotion.click/checkout) — this skill never writes animation code itself.
-- 11 reference playbooks + 5 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief).
+- 15 reference playbooks, a knowledge base (`references/knowledge-base/` — 8 distilled technique files + index), and 5 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief).
 
 ## Install
 
@@ -146,9 +151,10 @@ Just talk to your agent:
 > "Build me a website that converts for my pool cleaning business"
 > "Launch a product website for my new SaaS idea"
 > "Build me an immersive 3D website"
+> "I have design sketches — turn them into a website"
 > "Use the agentic-web-developer skill"
 
-The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea, Mode C: advanced 3D/WebGL), then walks you through every gate.
+The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea, Mode C: advanced 3D/WebGL, Mode D: design-sketch intake), then walks you through every gate.
 
 ## Project layout
 
