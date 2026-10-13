@@ -1,6 +1,6 @@
 # Installing agentic-web-developer
 
-The skill installs into **15 AI coding agents** — the same 15 the AnimotionJS skill supports. The installer writes each agent's own file format (`SKILL.md`, `skill.md`, a rules file, or `CONVENTIONS.md`) with the right frontmatter, plus the reference playbooks and templates alongside it.
+The skill installs into **15 AI coding agents** — the same 15 the AnimotionJS skill supports. The installer writes each agent's own file format (`SKILL.md`, `skill.md`, a rules file, or `CONVENTIONS.md`) with the right frontmatter, plus the department playbooks, reference playbooks and templates alongside it. For **opencode** and **Claude Code** it also installs the **slash commands** (`/agentic-web-developer`, `/agentic-web-developer-<dept>`, `/awd-<dept>`) globally.
 
 > **The npm package contains only the installer and these docs** — never the skill source. The installer fetches the skill payload from a *skill source* you configure (see [Skill source](#skill-source)).
 
@@ -38,6 +38,26 @@ Then **restart your AI agent** so it loads the skill.
 | `--dry-run` | Print the target paths without writing anything |
 | `--dir=<path>` | Install flat into `<path>/agentic-web-developer/` (SKILL.md layout) |
 | `--home=<path>` | Use `<path>` as the home directory (for testing) |
+| `--no-commands` | Skip installing the slash commands (opencode + claude) |
+
+## Slash commands (opencode + Claude Code)
+
+Alongside the skill, the installer writes the command files to the agent's global command directory:
+
+| Agent | Command directory |
+|---|---|
+| opencode | `~/.config/opencode/command/` (or `~/.opencode/command/`) |
+| Claude Code | `~/.claude/commands/` |
+
+Commands installed (21 files — 11 sources, `awd-*` aliases derived automatically):
+
+| Command | Does |
+|---|---|
+| `/agentic-web-developer` | Router — license gate, then Strategy (or the department named in the arguments) |
+| `/agentic-web-developer-strategy` … `-growth` | Enter one of the 10 departments by full name |
+| `/awd-strategy` … `/awd-growth` | The same 10 departments, short alias |
+
+Departments: `strategy` · `research` · `content` · `design` · `frontend` · `backend` · `motion` · `qa` · `deploy` · `growth`. Skip with `--no-commands`; refresh with `--force`. Agents other than opencode/claude still get the full skill — they just enter departments by asking ("use the Design department") instead of a slash command.
 
 ## Skill source
 
@@ -74,21 +94,21 @@ The package author normally sets `awd.source` in `package.json` once, so end use
 
 | Key | Agent | File written | Plus |
 |---|---|---|---|
-| `opencode` | OpenCode | `~/.config/opencode/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/` |
-| `claude` | Claude Code | `~/.claude/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/` |
-| `copilot` | GitHub Copilot | `%APPDATA%\github-copilot\skills\agentic-web-developer\SKILL.md` | `references/`, `templates/` |
+| `opencode` | OpenCode | `~/.config/opencode/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/`, `departments/` + commands |
+| `claude` | Claude Code | `~/.claude/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/`, `departments/` + commands |
+| `copilot` | GitHub Copilot | `%APPDATA%\github-copilot\skills\agentic-web-developer\SKILL.md` | `references/`, `templates/`, `departments/` |
 | `cursor` | Cursor | `~/.cursor/rules/agentic-web-developer.mdc` | payload in `~/.cursor/skills/agentic-web-developer/` |
-| `windsurf` | Windsurf (Codeium) | `~/.codeium/windsurf/skills/agentic-web-developer/skill.md` | `references/`, `templates/` |
-| `cody` | Cody (Sourcegraph) | `~/.cody/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/` |
-| `codium` | Codium | `~/.codium/skills/agentic-web-developer/skill.md` | `references/`, `templates/` |
+| `windsurf` | Windsurf (Codeium) | `~/.codeium/windsurf/skills/agentic-web-developer/skill.md` | `references/`, `templates/`, `departments/` |
+| `cody` | Cody (Sourcegraph) | `~/.cody/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/`, `departments/` |
+| `codium` | Codium | `~/.codium/skills/agentic-web-developer/skill.md` | `references/`, `templates/`, `departments/` |
 | `aider` | Aider | `~/.aider/skills/CONVENTIONS.md` | payload in `~/.aider/skills/agentic-web-developer/` |
 | `continue` | Continue | `~/.continue/rules/agentic-web-developer.md` | payload in `~/.continue/skills/agentic-web-developer/` |
-| `codex` | Codex (OpenAI) | `~/.codex/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/` |
-| `roo` | Roo Code | `~/.roo/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/` |
-| `cline` | Cline | `~/.cline/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/` |
+| `codex` | Codex (OpenAI) | `~/.codex/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/`, `departments/` |
+| `roo` | Roo Code | `~/.roo/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/`, `departments/` |
+| `cline` | Cline | `~/.cline/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/`, `departments/` |
 | `augment` | Augment | `~/.augment/rules/agentic-web-developer.md` | payload in `~/.augment/skills/agentic-web-developer/` |
 | `amazonq` | Amazon Q | `~/.amazonq/rules/agentic-web-developer.md` | payload in `~/.amazonq/skills/agentic-web-developer/` |
-| `jetbrains` | JetBrains AI | `~/.junie/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/` |
+| `jetbrains` | JetBrains AI | `~/.junie/skills/agentic-web-developer/SKILL.md` | `references/`, `templates/`, `departments/` |
 
 Notes:
 
@@ -100,11 +120,12 @@ Notes:
 
 Get the skill folder itself (the package doesn't contain it — take it from your configured source, or a copy someone sent you), then place the files as the table above says:
 
-- **SKILL.md agents** — copy the `skill/` folder to `<skills-dir>/agentic-web-developer/` (it must contain `SKILL.md`, `references/`, `templates/`).
+- **SKILL.md agents** — copy the `skill/` folder to `<skills-dir>/agentic-web-developer/` (it must contain `SKILL.md`, `references/`, `templates/`, `departments/`).
 - **Windsurf / Codium** — same, but rename `SKILL.md` to `skill.md`.
-- **Cursor** — copy `skill/SKILL.md` to `~/.cursor/rules/agentic-web-developer.mdc`, keep `references/` + `templates/` in `~/.cursor/skills/agentic-web-developer/`.
+- **Cursor** — copy `skill/SKILL.md` to `~/.cursor/rules/agentic-web-developer.mdc`, keep `references/` + `templates/` + `departments/` in `~/.cursor/skills/agentic-web-developer/`.
 - **Continue / Augment / Amazon Q** — copy `skill/SKILL.md` to the agent's `rules/agentic-web-developer.md` (paths in the table), payload alongside in `skills/agentic-web-developer/`.
 - **Aider** — copy `skill/SKILL.md` (without its `---` frontmatter block) to `~/.aider/skills/CONVENTIONS.md`.
+- **Slash commands (opencode + Claude Code)** — copy every file from the repo's `commands/` folder into `~/.config/opencode/command/` or `~/.claude/commands/`, then add `awd-<dept>.md` duplicates of each `agentic-web-developer-<dept>.md` if you want the short aliases.
 
 ## No local agent: Google AI Studio
 
@@ -123,15 +144,20 @@ Step-by-step, GET license URL, reference URL patterns and session hygiene: the s
 npx agentic-web-developer detect
 ```
 
-`INSTALLED` next to an agent means the skill file and its payload are both in place.
+`INSTALLED` next to an agent means the skill file and its payload are both in place. For opencode/claude it also shows the slash-command status (`cmds:` path, or `not installed`).
 
 ## Uninstall
 
-Delete what the table lists for your agent — the skill file **and** the `agentic-web-developer/` payload folder. For example:
+Delete what the table lists for your agent — the skill file **and** the `agentic-web-developer/` payload folder. For opencode/claude, also delete the command files (`agentic-web-developer*.md` and `awd-*.md`). For example:
 
 ```bash
 # opencode
 rm -rf ~/.config/opencode/skills/agentic-web-developer
+rm -f ~/.config/opencode/command/agentic-web-developer*.md ~/.config/opencode/command/awd-*.md
+
+# claude
+rm -rf ~/.claude/skills/agentic-web-developer
+rm -f ~/.claude/commands/agentic-web-developer*.md ~/.claude/commands/awd-*.md
 
 # cursor (rule file + payload)
 rm -f ~/.cursor/rules/agentic-web-developer.mdc
@@ -149,7 +175,7 @@ npx animotion-skills install --detect
 ```
 
 - License key (Studio plan, $15/month): https://skills.animotion.click/checkout
-- Without a key the build still works up to Stage 8 (animation handoff), where it stops and asks you to install Animotion.
+- Without a key the build still works up to the Motion department (animation handoff), where it stops and asks you to install Animotion.
 
 ## Repository vs npm package vs skill source
 

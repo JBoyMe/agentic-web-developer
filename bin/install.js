@@ -4,7 +4,7 @@
  *
  *   npx agentic-web-developer install [--agent=<key>|all] [--source=<url|path>] [--token=<key>]
  *                                     [--license-key=<key> | --admin-email=<e> --admin-secret=<s>]
- *                                     [--force] [--dry-run] [--dir=<path>]
+ *                                     [--force] [--dry-run] [--dir=<path>] [--no-commands]
  *   npx agentic-web-developer detect
  *
  * The npm package ships only this installer (+ docs). The skill payload is
@@ -245,6 +245,95 @@ function copyRecursive(src, dest) {
 function installPayload(payloadDir, skillDir) {
   copyRecursive(path.join(skillDir, "references"), path.join(payloadDir, "references"));
   copyRecursive(path.join(skillDir, "templates"), path.join(payloadDir, "templates"));
+  if (fs.existsSync(path.join(skillDir, "departments"))) {
+    copyRecursive(path.join(skillDir, "departments"), path.join(payloadDir, "departments"));
+  }
+}
+
+/* ------------------------------ slash commands ------------------------------ */
+// Installed globally for opencode (~/.config/opencode/command/) and Claude Code
+// (~/.claude/commands/). Each full-name command file (agentic-web-developer-<slug>.md)
+// also gets a short alias (awd-<slug>.md) derived from the filename.
+
+const COMMANDS = {
+  opencode: {
+    name: "OpenCode",
+    // fallback order: last entry wins when none exists — prefer ~/.config/opencode/command
+    dirs: [
+      path.join(HOME, ".opencode", "command"),
+      path.join(HOME, ".config", "opencode", "command")
+    ]
+  },
+  claude: {
+    name: "Claude Code",
+    // Claude Code reads user commands from ~/.claude/commands
+    dirs: [path.join(HOME, ".claude", "commands")]
+  }
+};
+
+// commands/ lives next to the skill folder (repo root) or inside it.
+function resolveCommandsSource(skillDir) {
+  const nested = path.join(skillDir, "commands");
+  if (fs.existsSync(nested)) return nested;
+  const sibling = path.join(path.dirname(skillDir), "commands");
+  if (fs.existsSync(sibling)) return sibling;
+  return null;
+}
+
+function pickCommandDir(cmd) {
+  for (const d of cmd.dirs) {
+    if (fs.existsSync(d)) return d;
+  }
+  return cmd.dirs[cmd.dirs.length - 1];
+}
+
+function commandDestPaths(key) {
+  if (flags.dir) {
+    return { dir: path.join(path.resolve(flags.dir), "commands") };
+  }
+  const cmd = COMMANDS[key];
+  if (!cmd) return null;
+  return { dir: pickCommandDir(cmd) };
+}
+
+// Writes every command file + derived awd-* alias. Returns written/skipped counts.
+function installCommands(skillDir, key) {
+  const spec = commandDestPaths(key);
+  if (!spec) return null;
+  const src = resolveCommandsSource(skillDir);
+  if (!src) return null;
+
+  let written = 0;
+  let skipped = 0;
+  if (flags["dry-run"]) {
+    const names = fs.readdirSync(src).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
+    const all = names.flatMap((n) =>
+      n.startsWith(`${SKILL_NAME}-`) ? [n, `awd-${n.slice(SKILL_NAME.length + 1)}`] : [n]
+    );
+    console.log(`          cmds: ${spec.dir}{/${all.join(", /")}}`);
+    return { dir: spec.dir, written: 0, skipped: all.length, dryRun: true };
+  }
+
+  fs.mkdirSync(spec.dir, { recursive: true });
+  for (const entry of fs.readdirSync(src)) {
+    if (!entry.endsWith(".md")) continue;
+    const base = entry.replace(/\.md$/, "");
+    const targets = [entry];
+    if (base.startsWith(`${SKILL_NAME}-`)) {
+      targets.push(`awd-${base.slice(SKILL_NAME.length + 1)}.md`);
+    }
+    const body = fs.readFileSync(path.join(src, entry), "utf8");
+    for (const t of targets) {
+      const dest = path.join(spec.dir, t);
+      if (fs.existsSync(dest) && !flags.force) {
+        skipped++;
+        continue;
+      }
+      fs.writeFileSync(dest, body);
+      written++;
+    }
+  }
+  return { dir: spec.dir, written, skipped, dryRun: false };
 }
 
 /* ------------------------- license config (the gate) ----------------------- */
@@ -432,10 +521,23 @@ function detect() {
     }
     if (installed && !fs.existsSync(payloadDir)) installed = false;
     if (present) found++;
-    const status = installed ? "INSTALLED" : present ? "not installed" : "agent not found";
+    let status = installed ? "INSTALLED" : present ? "not installed" : "agent not found";
+    // slash commands (opencode + claude only)
+    let cmdNote = "";
+    if (COMMANDS[key]) {
+      const dir = pickCommandDir(COMMANDS[key]);
+      const mainCmd = path.join(dir, `${SKILL_NAME}.md`);
+      const aliasCmd = path.join(dir, "awd-strategy.md");
+      if (fs.existsSync(mainCmd) || fs.existsSync(aliasCmd)) {
+        cmdNote = `  cmds: ${dir}`;
+      } else if (installed) {
+        cmdNote = "  cmds: not installed";
+      }
+    }
     console.log(
       `  ${present || installed ? "*" : " "} ${key.padEnd(10)} ${agent.name.padEnd(20)} ${status}` +
-        (installed ? `  -> ${mainFile}` : "")
+        (installed ? `  -> ${mainFile}` : "") +
+        cmdNote
     );
   }
   console.log(`\n  Install: npx ${SKILL_NAME} install --agent=<key>   (or --all, or omit --agent for auto)\n`);
@@ -473,8 +575,9 @@ async function install() {
     if (flags["dry-run"]) {
       console.log(`[dry-run] ${agent.name} (${key})`);
       console.log(`          main: ${mainFile}`);
-      console.log(`          refs: ${payloadDir}{/references, /templates}`);
+      console.log(`          refs: ${payloadDir}{/references, /templates, /departments}`);
       if (licenseFlagsPresent()) console.log(`          lic:  ${path.join(payloadDir, "animotion-config.json")}`);
+      if (!flags["no-commands"]) installCommands(skillDir, key);
       done++;
       continue;
     }
@@ -490,6 +593,12 @@ async function install() {
       console.log(`skip ${agent.name}: already installed at ${mainFile} (use --force to overwrite)`);
       const existingCfg = writeLicenseConfig(payloadDir);
       if (existingCfg) console.log(`  license config: ${existingCfg}`);
+      if (!flags["no-commands"]) {
+        const cmds = installCommands(skillDir, key);
+        if (cmds && !cmds.dryRun) {
+          console.log(`  commands: ${cmds.written} written, ${cmds.skipped} kept -> ${cmds.dir}`);
+        }
+      }
       continue;
     }
 
@@ -514,6 +623,12 @@ async function install() {
     console.log(`  main: ${mainFile}`);
     console.log(`  refs: ${payloadDir}`);
     if (cfgFile) console.log(`  license config: ${cfgFile}`);
+    if (!flags["no-commands"]) {
+      const cmds = installCommands(skillDir, key);
+      if (cmds && !cmds.dryRun) {
+        console.log(`  commands: ${cmds.written} written, ${cmds.skipped} kept -> ${cmds.dir}`);
+      }
+    }
     done++;
   }
 
@@ -573,9 +688,18 @@ Options:
   --dry-run       Print target paths without copying
   --dir=<path>    Install into <path>/${SKILL_NAME} (flat, SKILL.md layout)
   --home=<path>   Use <path> as the home directory (testing)
+  --no-commands   Skip installing the slash commands (/agentic-web-developer-* + /awd-*)
 
 Skill source order: --source > AWD_SOURCE > ./skill > package.json awd.source
 The npm package ships only this installer (+ docs) — never the skill source.
+
+Slash commands (opencode + claude, unless --no-commands):
+  /agentic-web-developer                     router (starts at Strategy)
+  /agentic-web-developer-<dept>              full name per department
+  /awd-<dept>                                short alias (strategy, research, content,
+                                             design, frontend, backend, motion, qa,
+                                             deploy, growth)
+  -> opencode: ~/.config/opencode/command/   claude: ~/.claude/commands/
 
 Each agent gets its own file format:
   skill agents (opencode, claude, copilot, cody, codex, roo, cline, jetbrains)

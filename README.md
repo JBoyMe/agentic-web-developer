@@ -1,26 +1,27 @@
 # agentic-web-developer
 
-An **agentic skill** that turns an AI coding agent into a complete web-development and website-selling system
+An **agentic skill** that turns an AI coding agent into a complete web-development and website-selling system — organized as **10 departments** (Strategy → Research → Content → Design → Frontend → Backend → Motion → QA → Deploy → Growth), each with its own slash command (`/agentic-web-developer-<dept>`, short alias `/awd-<dept>`).
 
 Plus a **novel-idea / product-launch mode** for websites not covered by the videos (SaaS, products, marketplaces).
 
 And a **Mode C** for advanced 3D / WebGL sites — cinematic Three.js builds in the style of Kage and Towers.
 
-Plus a **Mode D** for design-sketch intake — hand over your sketches/wireframes and the skill reads the pages and layouts off them, confirms an inventory, and runs only the stages needed.
+Plus a **Mode D** for design-sketch intake — hand over your sketches/wireframes and the skill reads the pages and layouts off them, confirms an inventory, and runs only the departments needed.
 
 > **Licensed — Pro plan ($7/month).** The skill validates an Animotion **Pro key** (or staff admin credentials) once per session before doing any work. [![Get Pro — $7/mo](https://img.shields.io/badge/Get_Pro-%247%2Fmonth-38ED26)](https://skills.animotion.click/checkout?plan=pro) [![Get Studio — $15/mo](https://img.shields.io/badge/Get_Studio-%2415%2Fmonth-222222)](https://skills.animotion.click/checkout?plan=studio) — payment steps, install-with-key commands and credential setup: **[License & unlocking](#license--unlocking-the-skill)** · full guide **[docs/LICENSING.md](docs/LICENSING.md)**.
 
 ## What you get
 
-- **Stage-gated pipeline** (Intake → Niche → Research → Design → Build → QA → Animation handoff → Deploy → Sell) where the agent **asks for your input at every step** — it never runs ahead on assumptions.
+- **10-department system** — Strategy (intake, mode, validation) · Research (design DNA + competitor intelligence) · Content (all the copy, agent-written) · Design (UI/UX + generated assets) · Frontend (framework, scaffold, build) · Backend (server-side, *only on request*) · Motion (motion brief + AnimotionJS handoff) · Quality Assurance (conversion, a11y, perf, SEO) · Deployment (ship + verify) · Growth (launch, outreach, monetization) — **one gate per stage, progress footer on every response**, the agent **never runs ahead on assumptions**.
+- **Slash commands** — `/awd-strategy`, `/awd-research`, `/awd-content`, `/awd-design`, `/awd-frontend`, `/awd-backend`, `/awd-motion`, `/awd-qa`, `/awd-deploy`, `/awd-growth` (plus full `/agentic-web-developer-*` names and the `/agentic-web-developer` router). Installed globally for **opencode** and **Claude Code**; `--no-commands` to skip.
 - **Four modes** — Mode A build-and-sell, Mode B novel idea / product launch, Mode C advanced 3D / WebGL experience, Mode D design-sketch intake.
 - **Dev-mode toolkit (opt-in, removable)** — a live CSS styling toolbar plus a prototyping toolbar (hotspots, viewport switcher, grid/measure, states, annotations), gated behind an ask-first question and wrapped in one flag / one marked block so it's fully stripped before production.
 - **Knowledge base** — 8 distilled technique files from Meng To's public skills (video → analysis prompts, interaction-prompt packs, full-page capture, inspiration bundles, the single-file demo contract, 16 3D techniques, 14 SVG illustration styles, ThreeUI components), indexed so the agent consults them instead of improvising.
-- **User's asks are law** — explicit requirements are implemented exactly as stated; the skill's own machinery (modes, research, toolkit) is offered, never forced.
+- **User's asks are law** — explicit requirements are implemented exactly as stated; the skill's own machinery (modes, research, toolkit) is offered, never forced. The agent generates all copy and assets — you supply facts, brand assets and the inspiration pack.
 - **Design-tool agnostic** — Figma, Paper, Google Stitch, Google AI Studio, Framer or code-first. You supply the credentials/MCP for your tool of choice.
 - **Framework agnostic** — Next.js, React, Vue, Svelte, Astro, plain HTML, WordPress, GoHighLevel — you pick.
 - **All animation is delegated** to the [AnimotionJS agentic skill](https://skills.animotion.click/checkout) — this skill never writes animation code itself.
-- 15 reference playbooks, a knowledge base (`references/knowledge-base/` — 8 distilled technique files + index), and 5 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief).
+- 15 reference playbooks, 10 department playbooks, a knowledge base (`references/knowledge-base/` — 8 distilled technique files + index), and 7 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief, copy, QA report).
 
 ## Install
 
@@ -41,7 +42,9 @@ npx agentic-web-developer install --all
 npx agentic-web-developer detect
 ```
 
-Other flags: `--license-key=<key>` (save your Pro key during install — see [License & unlocking](#license--unlocking-the-skill)), `--admin-email` / `--admin-secret` (staff), `--force` (overwrite), `--dry-run` (print targets only), `--dir=<path>` (custom destination), `--source=<url|path>` / `--token=<key>` (skill source).
+Other flags: `--license-key=<key>` (save your Pro key during install — see [License & unlocking](#license--unlocking-the-skill)), `--admin-email` / `--admin-secret` (staff), `--force` (overwrite), `--dry-run` (print targets only), `--dir=<path>` (custom destination), `--source=<url|path>` / `--token=<key>` (skill source), `--no-commands` (skip the slash commands).
+
+For **opencode** and **Claude Code**, the installer also writes the **slash commands** globally — `/agentic-web-developer` plus `/agentic-web-developer-<dept>` and the `/awd-<dept>` aliases — to `~/.config/opencode/command/` and `~/.claude/commands/`.
 
 Then **restart your AI agent** so it loads the skill.
 
@@ -55,7 +58,7 @@ Then **restart your AI agent** so it loads the skill.
 
 `opencode` · `claude` · `copilot` · `cursor` · `windsurf` · `codex` · `cline` · `roo` · `cody` · `codium` · `aider` · `continue` · `augment` · `amazonq` · `jetbrains`
 
-The installer writes **each agent's own file format** with the right frontmatter — `SKILL.md` for skill agents, `skill.md` for Windsurf/Codium, `rules/*.mdc` for Cursor, `rules/*.md` for Continue/Augment/Amazon Q, `CONVENTIONS.md` for Aider — and puts the `references/` + `templates/` payload where that agent can read it. Same 15 agents as the AnimotionJS skill.
+The installer writes **each agent's own file format** with the right frontmatter — `SKILL.md` for skill agents, `skill.md` for Windsurf/Codium, `rules/*.mdc` for Cursor, `rules/*.md` for Continue/Augment/Amazon Q, `CONVENTIONS.md` for Aider — and puts the `references/` + `templates/` + `departments/` payload where that agent can read it. Same 15 agents as the AnimotionJS skill.
 
 ### Manual install (no CLI)
 
@@ -67,13 +70,11 @@ The skill ships behind the **Animotion Pro plan — $7/month**. One validation p
 
 ### How to pay for Pro
 
-1. **Click a Get Pro button** (top of this README or above) — opens [`skills.animotion.click/checkout?plan=pro`](https://skills.animotion.click/checkout?plan=pro) with Pro preselected ($7/month). Studio ($15/month) also unlocks this skill *and* the AnimotionJS animation skill you need at Stage 8.
+1. **Click a Get Pro button** (top of this README or above) — opens [`skills.animotion.click/checkout?plan=pro`](https://skills.animotion.click/checkout?plan=pro) with Pro preselected ($7/month). Studio ($15/month) also unlocks this skill *and* the AnimotionJS animation skill you need at the Motion department.
 2. **Enter your email** — the license is tied to it.
 3. **Continue to Payment** → Stripe's hosted checkout (card).
 4. **Confirm** — monthly, cancel anytime.
-5. **Copy your key** (`sec_live_…`) from the confirmation page.
-
-### How to give the skill your key (or admin credentials)
+5. **Copy your key** (`sec_live_…`) from the confirmation page.### How to give the skill your key (or admin credentials)
 
 Pick one — the gate looks for environment variables first, then the installer's config file, then asks you once:
 
@@ -142,7 +143,7 @@ npx animotion-skills install --tier=agentic --all --license-key=YOUR_KEY
 - License key (Studio plan, $15/month): https://skills.animotion.click/checkout
 - Local source on the author's machine: `C:\Users\creat\Projects\Animotionjs\animotion-skills`
 
-Without it, the skill will still design and build — but it will stop at Stage 8 and ask you to install Animotion before any motion work.
+Without it, the skill will still design and build — but it will stop at the Motion department and ask you to install Animotion before any motion work.
 
 ## Using the skill
 
@@ -154,18 +155,26 @@ Just talk to your agent:
 > "I have design sketches — turn them into a website"
 > "Use the agentic-web-developer skill"
 
-The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea, Mode C: advanced 3D/WebGL, Mode D: design-sketch intake), then walks you through every gate.
+Or jump straight into a department (opencode + Claude Code, after install):
+
+> `/awd-design` — enter the Design department directly
+> `/agentic-web-developer-qa` — full-name form of the same command
+> `/agentic-web-developer` — router (starts at Strategy unless you name a department)
+
+The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea, Mode C: advanced 3D/WebGL, Mode D: design-sketch intake), then walks you through every gate — one department at a time, with a progress footer on every response.
 
 ## Project layout
 
 ```
 agentic-web-developer/
 ├── package.json          # npm manifest (bin: agentic-web-developer, awd.source)
-├── bin/install.js        # zero-dependency installer CLI (all 15 agents, per-agent formats)
+├── bin/install.js        # zero-dependency installer CLI (all 15 agents, per-agent formats, slash commands)
+├── commands/             # 11 slash-command files (router + 10 departments; installer derives /awd-* aliases)
 ├── skill/                # ← the skill itself (source of truth; never published)
-│   ├── SKILL.md
-│   ├── references/       # 11 playbooks (incl. licensing.md)
-│   └── templates/        # 5 fill-in templates (incl. 3D scene brief)
+│   ├── SKILL.md          # the router: license gate, 13 non-negotiables, department map, modes, footer spec
+│   ├── departments/      # 10 department playbooks + INDEX + DEPARTMENT-TEMPLATE
+│   ├── references/       # 15 playbooks (incl. licensing.md)
+│   └── templates/        # 7 fill-in templates (incl. 3D scene brief, copy, QA report)
 ├── docs/                 # ← the only content tracked in Git
 │   ├── INSTALL.md        # install guide for all 15 agents
 │   ├── EXAMPLES.md       # worked walkthroughs: Mode A + Mode B
