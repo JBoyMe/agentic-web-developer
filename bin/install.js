@@ -699,6 +699,8 @@ Slash commands (opencode + claude, unless --no-commands):
   /awd-<dept>                                short alias (strategy, research, content,
                                              design, frontend, backend, motion, qa,
                                              deploy, growth)
+  /awd-taste                                 taste training (not a department —
+                                             builds/edits your taste profile any time)
   -> opencode: ~/.config/opencode/command/   claude: ~/.claude/commands/
 
 Each agent gets its own file format:

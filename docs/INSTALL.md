@@ -49,15 +49,16 @@ Alongside the skill, the installer writes the command files to the agent's globa
 | opencode | `~/.config/opencode/command/` (or `~/.opencode/command/`) |
 | Claude Code | `~/.claude/commands/` |
 
-Commands installed (21 files — 11 sources, `awd-*` aliases derived automatically):
+Commands installed (23 files — 12 sources, `awd-*` aliases derived automatically):
 
 | Command | Does |
 |---|---|
 | `/agentic-web-developer` | Router — license gate, then Strategy (or the department named in the arguments) |
 | `/agentic-web-developer-strategy` … `-growth` | Enter one of the 10 departments by full name |
 | `/awd-strategy` … `/awd-growth` | The same 10 departments, short alias |
+| `/agentic-web-developer-taste` · `/awd-taste` | Taste training — build or refine the taste profile (works with or without a project; not a department) |
 
-Departments: `strategy` · `research` · `content` · `design` · `frontend` · `backend` · `motion` · `qa` · `deploy` · `growth`. Skip with `--no-commands`; refresh with `--force`. Agents other than opencode/claude still get the full skill — they just enter departments by asking ("use the Design department") instead of a slash command.
+Departments: `strategy` · `research` · `content` · `design` · `frontend` · `backend` · `motion` · `qa` · `deploy` · `growth` — plus the standalone taste trainer (`taste`). Skip with `--no-commands`; refresh with `--force`. Agents other than opencode/claude still get the full skill — they just enter departments by asking ("use the Design department") instead of a slash command.
 
 ## Skill source
 
@@ -131,7 +132,7 @@ Get the skill folder itself (the package doesn't contain it — take it from you
 
 AI Studio has no file system to install into — the skill runs there via paste + URL fetch instead:
 
-1. Paste `SKILL.md` (below the frontmatter) into AI Studio's **System instructions**.
+1. Paste the skill's `references/ai-studio-system-prompt.md` (the paste-ready contract — **not** the raw `SKILL.md`) into AI Studio's **System instructions**.
 2. Enable the **URL Context** tool — the skill uses it to validate your license and fetch each reference file from `skills.animotion.click` with your key (no env vars, no file attachments).
 3. Add your license key (or admin pair) to the System instructions, or paste it when the gate asks.
 4. Build in **Canvas** as a single HTML file, then **Download the code** and deploy.

@@ -13,7 +13,8 @@ Plus a **Mode D** for design-sketch intake — hand over your sketches/wireframe
 ## What you get
 
 - **10-department system** — Strategy (intake, mode, validation) · Research (design DNA + competitor intelligence) · Content (all the copy, agent-written) · Design (UI/UX + generated assets) · Frontend (framework, scaffold, build) · Backend (server-side, *only on request*) · Motion (motion brief + AnimotionJS handoff) · Quality Assurance (conversion, a11y, perf, SEO) · Deployment (ship + verify) · Growth (launch, outreach, monetization) — **one gate per stage, progress footer on every response**, the agent **never runs ahead on assumptions**.
-- **Slash commands** — `/awd-strategy`, `/awd-research`, `/awd-content`, `/awd-design`, `/awd-frontend`, `/awd-backend`, `/awd-motion`, `/awd-qa`, `/awd-deploy`, `/awd-growth` (plus full `/agentic-web-developer-*` names and the `/agentic-web-developer` router). Installed globally for **opencode** and **Claude Code**; `--no-commands` to skip.
+- **Slash commands** — `/awd-strategy`, `/awd-research`, `/awd-content`, `/awd-design`, `/awd-frontend`, `/awd-backend`, `/awd-motion`, `/awd-qa`, `/awd-deploy`, `/awd-growth`, plus **`/awd-taste`** (taste training — not a department) (full `/agentic-web-developer-*` names and the `/agentic-web-developer` router). Installed globally for **opencode** and **Claude Code**; `--no-commands` to skip.
+- **Taste training** — users *train* the agent's taste into a global profile (`~/.agentic-web-developer/taste-profile.md`: three dials, point of view, annotated idea archive, ban list). The agent reads it before designing, declares a one-line design read, **always proposes 1–3 gated in-style deviations** over the inspiration (declining = faithful recreation), audits the result 0–100 before approval, and files lasting feedback back into the profile — taste compounds across projects, never assumed.
 - **Four modes** — Mode A build-and-sell, Mode B novel idea / product launch, Mode C advanced 3D / WebGL experience, Mode D design-sketch intake.
 - **Dev-mode toolkit (opt-in, removable)** — a live CSS styling toolbar plus a prototyping toolbar (hotspots, viewport switcher, grid/measure, states, annotations), gated behind an ask-first question and wrapped in one flag / one marked block so it's fully stripped before production.
 - **Knowledge base** — 8 distilled technique files from Meng To's public skills (video → analysis prompts, interaction-prompt packs, full-page capture, inspiration bundles, the single-file demo contract, 16 3D techniques, 14 SVG illustration styles, ThreeUI components), indexed so the agent consults them instead of improvising.
@@ -21,7 +22,7 @@ Plus a **Mode D** for design-sketch intake — hand over your sketches/wireframe
 - **Design-tool agnostic** — Figma, Paper, Google Stitch, Google AI Studio, Framer or code-first. You supply the credentials/MCP for your tool of choice.
 - **Framework agnostic** — Next.js, React, Vue, Svelte, Astro, plain HTML, WordPress, GoHighLevel — you pick.
 - **All animation is delegated** to the [AnimotionJS agentic skill](https://skills.animotion.click/checkout) — this skill never writes animation code itself.
-- 15 reference playbooks, 10 department playbooks, a knowledge base (`references/knowledge-base/` — 8 distilled technique files + index), and 7 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief, copy, QA report).
+- 16 reference playbooks, 10 department playbooks, a knowledge base (`references/knowledge-base/` — 8 distilled technique files + index), and 8 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief, copy, QA report, taste profile).
 
 ## Install
 
@@ -48,7 +49,7 @@ For **opencode** and **Claude Code**, the installer also writes the **slash comm
 
 Then **restart your AI agent** so it loads the skill.
 
-> **No local agent? Run it in Google AI Studio.** Paste `SKILL.md` into **System instructions**, enable the **URL Context** tool (the skill fetches its reference files and validates your key from `skills.animotion.click` — no env vars or file attachments needed), add your key to the system instructions, and build in Canvas. Full setup + stage mapping: `references/google-ai-studio.md` in the skill.
+> **No local agent? Run it in Google AI Studio.** Paste `references/ai-studio-system-prompt.md` into **System instructions** (a compact, contract-first router — *not* the raw `SKILL.md`, which browsers tend to ignore), enable the **URL Context** tool (the skill fetches its reference files and validates your key from `skills.animotion.click` — no env vars or file attachments needed), add your key to the system instructions, and build in Canvas. Full setup, department mapping and "it builds anyway" troubleshooting: `references/google-ai-studio.md` in the skill.
 
 > **On first run the skill asks for its Pro license key** (or admin credentials) and validates it once per session — or pass it up front with `--license-key=…` and skip the prompt. See [License & unlocking](#license--unlocking-the-skill).
 
@@ -160,6 +161,7 @@ Or jump straight into a department (opencode + Claude Code, after install):
 > `/awd-design` — enter the Design department directly
 > `/agentic-web-developer-qa` — full-name form of the same command
 > `/agentic-web-developer` — router (starts at Strategy unless you name a department)
+> `/awd-taste` — train or refine your taste profile (works with or without a project)
 
 The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea, Mode C: advanced 3D/WebGL, Mode D: design-sketch intake), then walks you through every gate — one department at a time, with a progress footer on every response.
 
@@ -169,12 +171,12 @@ The agent classifies the project (Mode A: build-and-sell, Mode B: novel idea, Mo
 agentic-web-developer/
 ├── package.json          # npm manifest (bin: agentic-web-developer, awd.source)
 ├── bin/install.js        # zero-dependency installer CLI (all 15 agents, per-agent formats, slash commands)
-├── commands/             # 11 slash-command files (router + 10 departments; installer derives /awd-* aliases)
+├── commands/             # 12 slash-command files (router + 10 departments + taste trainer; installer derives /awd-* aliases)
 ├── skill/                # ← the skill itself (source of truth; never published)
-│   ├── SKILL.md          # the router: license gate, 13 non-negotiables, department map, modes, footer spec
+│   ├── SKILL.md          # the router: license gate, 14 non-negotiables, department map, modes, footer spec
 │   ├── departments/      # 10 department playbooks + INDEX + DEPARTMENT-TEMPLATE
-│   ├── references/       # 15 playbooks (incl. licensing.md)
-│   └── templates/        # 7 fill-in templates (incl. 3D scene brief, copy, QA report)
+│   ├── references/       # 16 playbooks (incl. licensing.md, taste-system.md)
+│   └── templates/        # 8 fill-in templates (incl. 3D scene brief, copy, QA report, taste profile)
 ├── docs/                 # ← the only content tracked in Git
 │   ├── INSTALL.md        # install guide for all 15 agents
 │   ├── EXAMPLES.md       # worked walkthroughs: Mode A + Mode B
