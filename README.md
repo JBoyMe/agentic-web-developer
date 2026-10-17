@@ -15,6 +15,9 @@ Plus a **Mode D** for design-sketch intake — hand over your sketches/wireframe
 - **10-department system** — Strategy (intake, mode, validation) · Research (design DNA + competitor intelligence) · Content (all the copy, agent-written) · Design (UI/UX + generated assets) · Frontend (framework, scaffold, build) · Backend (server-side, *only on request*) · Motion (motion brief + AnimotionJS handoff) · Quality Assurance (conversion, a11y, perf, SEO) · Deployment (ship + verify) · Growth (launch, outreach, monetization) — **one gate per stage, progress footer on every response**, the agent **never runs ahead on assumptions**.
 - **Slash commands** — `/awd-strategy`, `/awd-research`, `/awd-content`, `/awd-design`, `/awd-frontend`, `/awd-backend`, `/awd-motion`, `/awd-qa`, `/awd-deploy`, `/awd-growth`, plus **`/awd-taste`** (taste training — not a department) (full `/agentic-web-developer-*` names and the `/agentic-web-developer` router). Installed globally for **opencode** and **Claude Code**; `--no-commands` to skip.
 - **Taste training** — users *train* the agent's taste into a global profile (`~/.agentic-web-developer/taste-profile.md`: three dials, point of view, annotated idea archive, ban list). The agent reads it before designing, declares a one-line design read, **always proposes 1–3 gated in-style deviations** over the inspiration (declining = faithful recreation), audits the result 0–100 before approval, and files lasting feedback back into the profile — taste compounds across projects, never assumed.
+- **Immersive scroll design (method, Animotion owns the motion)** — an optional scroll-appetite gate at Strategy feeds a full design pass in Design: pick **one of 8 page grammars** (filmic, chaptered, live surface, continuous world, typographic poster, gallery, split stage, cutlist), write a **feeling curve with exactly one engineered peak**, invent a **signature move**, clear a **fingerprint gate** (≥4/6 dimensions differ from your prior builds), and pass taste-floor additions + a layered-hero spec — then Motion turns it into a beat-by-beat **device score table mapped to Animotion commands**, and QA runs a **scroll craft checklist** (contact sheet, dead scroll, cue opacity, frozen media, cold feel check). Scroll-craft's *design method* only; its runtime engine is never shipped. `references/scroll-craft-integration.md`.
+- **Project taste file (`brand.md`)** — drop a `brand.md` in the project root and every department reads it before design, copy or asset work: its hard rules (palette, fonts, voice, don'ts) override skill defaults and the taste profile the way a client brand book would. The agent offers to create one at Strategy intake.
+- **Intakes explain themselves** — every intake question ships with a *Why* (why it's asked) and an *Example* (a good answer), so you always know what to say next.
 - **Four modes** — Mode A build-and-sell, Mode B novel idea / product launch, Mode C advanced 3D / WebGL experience, Mode D design-sketch intake.
 - **Dev-mode toolkit (opt-in, removable)** — a live CSS styling toolbar plus a prototyping toolbar (hotspots, viewport switcher, grid/measure, states, annotations), gated behind an ask-first question and wrapped in one flag / one marked block so it's fully stripped before production.
 - **Knowledge base** — 8 distilled technique files from Meng To's public skills (video → analysis prompts, interaction-prompt packs, full-page capture, inspiration bundles, the single-file demo contract, 16 3D techniques, 14 SVG illustration styles, ThreeUI components), indexed so the agent consults them instead of improvising.
@@ -22,7 +25,7 @@ Plus a **Mode D** for design-sketch intake — hand over your sketches/wireframe
 - **Design-tool agnostic** — Figma, Paper, Google Stitch, Google AI Studio, Framer or code-first. You supply the credentials/MCP for your tool of choice.
 - **Framework agnostic** — Next.js, React, Vue, Svelte, Astro, plain HTML, WordPress, GoHighLevel — you pick.
 - **All animation is delegated** to the [AnimotionJS agentic skill](https://skills.animotion.click/checkout) — this skill never writes animation code itself.
-- 16 reference playbooks, 10 department playbooks, a knowledge base (`references/knowledge-base/` — 8 distilled technique files + index), and 8 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief, copy, QA report, taste profile).
+- 17 reference playbooks, 10 department playbooks, a knowledge base (`references/knowledge-base/` — 8 distilled technique files + index), and 8 ready-to-fill templates (builder brief, scaffold HTML, `siteconfig.ts`, outlier anatomy, 3D scene brief, copy, QA report, taste profile).
 
 ## Install
 
@@ -175,7 +178,7 @@ agentic-web-developer/
 ├── skill/                # ← the skill itself (source of truth; never published)
 │   ├── SKILL.md          # the router: license gate, 14 non-negotiables, department map, modes, footer spec
 │   ├── departments/      # 10 department playbooks + INDEX + DEPARTMENT-TEMPLATE
-│   ├── references/       # 16 playbooks (incl. licensing.md, taste-system.md)
+│   ├── references/       # 17 playbooks (incl. licensing.md, taste-system.md, scroll-craft-integration.md)
 │   └── templates/        # 8 fill-in templates (incl. 3D scene brief, copy, QA report, taste profile)
 ├── docs/                 # ← the only content tracked in Git
 │   ├── INSTALL.md        # install guide for all 15 agents
