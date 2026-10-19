@@ -698,7 +698,9 @@ Slash commands (opencode + claude, unless --no-commands):
   /agentic-web-developer-<dept>              full name per department
   /awd-<dept>                                short alias (strategy, research, content,
                                              design, frontend, backend, motion, qa,
-                                             deploy, growth)
+                                             deploy, launch, growth)
+  /awd-<dept> <stage>                        stage jump (e.g. /awd-design 4.3)
+  /awd-list                                  print every department + stage; start anywhere
   /awd-taste                                 taste training (not a department —
                                              builds/edits your taste profile any time)
   -> opencode: ~/.config/opencode/command/   claude: ~/.claude/commands/
