@@ -276,10 +276,13 @@ const COMMANDS = {
   }
 };
 
-// commands/ lives next to the skill folder (repo root) or inside it.
+// commands/ lives next to the skill folder (repo root), inside it, or at the
+// package root (npm/npx installs, where the skill itself is downloaded to a temp dir).
 function resolveCommandsSource(skillDir) {
   const nested = path.join(skillDir, "commands");
   if (fs.existsSync(nested)) return nested;
+  const pkgCommands = path.join(PKG_ROOT, "commands");
+  if (fs.existsSync(pkgCommands)) return pkgCommands;
   const sibling = path.join(path.dirname(skillDir), "commands");
   if (fs.existsSync(sibling)) return sibling;
   return null;
