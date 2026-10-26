@@ -4,6 +4,7 @@
 # this repository. package.json ships via npm.
 *
 !.gitignore
+!.gitattributes
 !.npmignore
 !/render.yaml
 !/package.json

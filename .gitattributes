@@ -1,0 +1,4 @@
+# Container scripts must keep LF endings. A CRLF shebang makes the image fail
+# at exec time with "no such file or directory", which is baffling in logs.
+*.sh text eol=lf
+Dockerfile text eol=lf
