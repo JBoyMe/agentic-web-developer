@@ -1,0 +1,60 @@
+{
+  "name": "agentic-web-developer",
+  "version": "2.3.0",
+  "description": "Department-based agentic skill for building high-converting websites that sell — 11 departments (Strategy, Research, Content, Design, Frontend, Backend, Motion, QA, Deploy, Launch, Growth) with slash commands (/awd-*), /awd-list stage index (start any department/stage any time), design DNA extraction, outlier competitor research, conversion blueprints, the M.O.N.E.Y sales framework, lead generation, cloning, outreach and deployment. Five modes — build-and-sell, novel product launch, 3D/WebGL (Three.js shaders/particles/viewers), design-sketch intake and template reuse — plus an Asset Builder in every mode (/awd-assets): image, audio, video and full 3D generated in-session through a managed credits proxy or your own Renderful key, plus local headless Blender, on prepaid credits sold separately from every plan. All animation and asset-control interactions are delegated to the AnimotionJS agentic skill (Studio tier).",
+  "keywords": [
+    "opencode",
+    "skill",
+    "agentic",
+    "ai-agents",
+    "claude-code",
+    "cursor",
+    "web-development",
+    "website-builder",
+    "conversion",
+    "landing-page",
+    "money-framework",
+    "google-ai-studio",
+    "gemini",
+    "animotion",
+    "animotionjs",
+    "departments",
+    "slash-commands",
+    "asset-builder",
+    "video-generation",
+    "audio-generation",
+    "3d",
+    "blender",
+    "renderful",
+    "credits",
+    "template-reuse"
+  ],
+  "bin": {
+    "agentic-web-developer": "bin/install.js"
+  },
+  "files": [
+    "bin",
+    "commands",
+    "docs",
+    "README.md"
+  ],
+  "scripts": {
+    "detect": "node bin/install.js detect",
+    "install:skill": "node bin/install.js install",
+    "pack:check": "npm pack --dry-run",
+    "test:credits": "node --test \"server/credits/test/*.test.mjs\"",
+    "release:build": "node scripts/build-skill.js",
+    "release:verify": "node scripts/verify-release.js",
+    "release:check": "node scripts/release-check.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "awd": {
+    "source": "https://4e2zaktqel.ucarecd.net/770e7a01-3c21-4373-94c0-bb06745e24ba/skilltar.gz"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

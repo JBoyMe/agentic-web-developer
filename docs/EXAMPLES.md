@@ -75,7 +75,7 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 
 > "Build me one from the pool-cleaning template for a Phoenix HVAC company." — or `/awd-mode-e-pool-cleaning-landing`
 
-**E.1 → E.6 (apply):** instantiate the template into a new folder (`build-state.md`, `mode: E`) → **swap interview** (one gate per slot group: brand, copy, contact, links) → **Asset Builder** per missing asset (user file · keep demo · Renderful generate with a credit gate · local Blender · skip) → content/SEO swap → **light pipeline** (Motion brief → QA full pass → Deploy; Research/Design/Frontend skipped — the template already carries them) → sign-off sweep: every `{{AWD:` token gone, zero leftovers.
+**E.1 → E.6 (apply):** instantiate the template into a new folder (`build-state.md`, `mode: E`) → **swap interview** (one gate per slot group: brand, copy, contact, links) → **Asset Builder** per missing asset (user file · keep demo · generate via the managed credits proxy or Renderful with a credit gate · local Blender · skip) → content/SEO swap → **light pipeline** (Motion brief → QA full pass → Deploy; Research/Design/Frontend skipped — the template already carries them) → sign-off sweep: every `{{AWD:` token gone, zero leftovers.
 
 **Result:** a new client site in a fraction of a full build, from a sanitized contract — the same move that turns your first sale into a product line.
 
@@ -91,10 +91,10 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 
 | Stage | What happens | The gate (you answer) |
 |---|---|---|
-| **AB.1 Inventory** | Scans the project for missing/weak media and writes one row per slot into `## Assets`: slot, kind, brief, route, model/engine, credits, status | "Found 4 asset slots (hero video, voiceover, 3 product stills, 6 3D props). Build all?" → *"the video + voiceover"* |
-| **AB.2 Route** | Picks the engine per slot: **my file** · **keep existing** · **Renderful** (image/audio/video/3D mesh) · **local Blender** (0 credits: block-animation video, full 3D with materials + animation) · **SVG** · **skip** — checks `RENDERFUL_API_KEY`, Blender, balance | "Hero loop: block it in Blender (0 cr) then one Wan 2.6 AI pass (15 cr), or straight text→video (15 cr)?" → *"block then pass"* |
-| **AB.3 Generate** | Runs the credit gate, then generates in-session: Renderful create → poll → download; or headless `blender --background --python` (blockout → playblast → AI pass; or mesh → UV → PBR → lights → keyframes → Draco `.glb`) | "Generate **2 assets**? hero-loop · wan-2.6 · **15 cr** · voiceover · speech-2.6-turbo · **2 cr** — balance 40 → 23" → *"generate"* |
-| **AB.4 Ingest & QA** | Files assets into the project, records dimensions/duration/codec, runs the playback contract (muted/loop/poster/reduced-motion), checks budgets; **deducts credits only after a successful download**, refunds failures | "Both ingested and playing. Poster + reduced-motion fallbacks set." → *"approve"* |
+| **AB.1 Inventory** | Scans the project for missing/weak media and writes one row per slot into `## Assets`: slot, kind, brief, route, model/engine, credits reserved/charged, status | "Found 4 asset slots (hero video, voiceover, 3 product stills, 6 3D props). Build all?" → *"the video + voiceover"* |
+| **AB.2 Route** | Picks the engine per slot: **my file** · **keep existing** · **managed credits / Renderful** (image/audio/video/3D mesh) · **local Blender** (0 credits: block-animation video, full 3D with materials + animation) · **SVG** · **skip** — checks `AWD_CREDITS_API_URL` (or `RENDERFUL_API_KEY`), Blender, balance | "Hero loop: block it in Blender (0 cr) then one Wan 2.6 AI pass (10–20 cr), or straight text→video (10–20 cr)?" → *"block then pass"* |
+| **AB.3 Generate** | Runs the credit gate, then generates in-session: managed proxy quote → create → poll → download signed URL (or direct Renderful create → poll → download); or headless `blender --background --python` (blockout → playblast → AI pass; or mesh → UV → PBR → lights → keyframes → Draco `.glb`) | "Generate **2 assets**? hero-loop · wan-2.6 · **10–20 cr** · voiceover · speech-2.6-turbo · **2–5 cr** — balance 40, reserve 25 → 15" → *"generate"* |
+| **AB.4 Ingest & QA** | Files assets into the project, records dimensions/duration/codec, runs the playback contract (muted/loop/poster/reduced-motion), checks budgets; **records reserved vs settled credits** (managed: the proxy already reconciled; local: deduct after a successful download, refund failures) | "Both ingested and playing. Poster + reduced-motion fallbacks set." → *"approve"* |
 | **AB.5 Control interactions** | Writes a row-per-asset brief (play/pause, scrub, orbit/zoom/reset, mute, scroll-driven playback) and hands it to **Animotion Studio** (the AnimotionJS agentic skill, Studio tier) | "Controls for hero loop + 3D cup are briefed for Animotion — build them now?" → *"yes"* |
 
 **Never blocks:** no key / no Blender / empty balance → cheaper model (re-gated) · buy credits · user file · keep existing · SVG · skip.
@@ -108,7 +108,7 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 - The conversion blueprint and QA checklists (Content + Quality Assurance)
 - Deployment (Deployment — the user always picks the target)
 - **The animation rule:** no motion code is ever written by this skill — Motion hands a motion brief to the **AnimotionJS agentic skill** for all 15 supported agents; **control interactions** for audio/video/3D assets are briefed at AB.5 and built by Animotion **Studio**
-- **The Asset Builder** (`/awd-assets`) — every mode can inventory, route, generate (Renderful or local headless Blender), ingest/QA and brief controls for audio, video and 3D; credits are a separate prepaid purchase and every batch passes a credit gate
+- **The Asset Builder** (`/awd-assets`) — every mode can inventory, route, generate (managed credits, direct Renderful, or local headless Blender), ingest/QA and brief controls for audio, video and 3D; credits are a separate prepaid purchase and every batch passes a credit gate
 - A question gate at the end of every stage, a progress footer on every response, and `/awd-<dept>` commands to jump into any department
 
 **Mode E difference:** the apply flow runs the **light pipeline** only (Motion → QA → Deploy) — Research/Design/Frontend work is already baked into the template. Gates, footer, taste and the animation rule stay identical.

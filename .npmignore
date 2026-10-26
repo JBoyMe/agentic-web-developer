@@ -1,0 +1,5 @@
+# Present so npm ignores .gitignore (which intentionally hides bin/ and skill/).
+# Keep the npm package = installer + slash commands + docs + README.
+# skill/ and server/ are NEVER published (skill ships via awd.source; the proxy
+# is a private service).
+*.tgz

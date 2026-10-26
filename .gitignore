@@ -1,10 +1,26 @@
-# Git: documentation + the installer are tracked.
-# The skill source (skill/) ships via the private tarball in package.json
-# awd.source, not through this repository. package.json ships via npm.
+# Git: docs, installer, commands, the managed-credits proxy and release tooling
+# are tracked. The skill source (skill/) and the built payload (skilltar.gz)
+# ship via the private tarball URL in package.json -> awd.source, never through
+# this repository. package.json ships via npm.
 *
 !.gitignore
+!.npmignore
+!/package.json
 !/README.md
 !/docs/
 !/docs/**
 !/bin/
 !/bin/**
+!/commands/
+!/commands/**
+!/server/
+!/server/**
+!/scripts/
+!/scripts/**
+# Never commit runtime state or real secrets, even though server/ is tracked.
+server/credits/.env
+server/credits/.env.*
+!server/credits/.env.example
+server/credits/data/
+server/credits/*.sqlite*
+server/credits/*.db

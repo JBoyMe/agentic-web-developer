@@ -2,7 +2,7 @@
 
 The skill installs into **15 AI coding agents** — the same 15 the AnimotionJS skill supports. The installer writes each agent's own file format (`SKILL.md`, `skill.md`, a rules file, or `CONVENTIONS.md`) with the right frontmatter, plus the department playbooks, reference playbooks and templates alongside it. For **opencode** and **Claude Code** it also installs the **slash commands** (`/agentic-web-developer`, `/agentic-web-developer-<dept>`, `/awd-<dept>`) globally.
 
-> **The npm package contains only the installer and these docs** — never the skill source. The installer fetches the skill payload from a *skill source* you configure (see [Skill source](#skill-source)).
+> **The npm package contains only the installer, slash commands and these docs** — never the skill source or the credits proxy. The installer fetches the skill payload from a *skill source* you configure (see [Skill source](#skill-source)).
 
 ## Quick start
 
@@ -57,7 +57,7 @@ Commands installed (31 files — 16 sources, `awd-*` aliases derived automatical
 | `/agentic-web-developer-strategy` … `-growth` | Enter one of the 11 departments by full name |
 | `/awd-strategy` … `/awd-growth` | The same 11 departments, short alias |
 | `/agentic-web-developer-taste` · `/awd-taste` | Taste training — build or refine the taste profile (works with or without a project; not a department) |
-| `/agentic-web-developer-assets` · `/awd-assets` | **Asset Builder** — audio, video and 3D in any mode: inventory → route → generate (Renderful · local Blender) → ingest/QA → Animotion control brief. Credit gate before every batch; credits sold separately |
+| `/agentic-web-developer-assets` · `/awd-assets` | **Asset Builder** — audio, video and 3D in any mode: inventory → route → generate (managed credits · direct Renderful · local Blender) → ingest/QA → Animotion control brief. Credit gate before every batch; credits sold separately |
 | `/agentic-web-developer-mode-e` · `/awd-mode-e` | **Mode E** — save the open project as a template, or list the template library (Template plan, $25/month) |
 | `/agentic-web-developer-mode-e-<template-name>` · `/awd-mode-e-<template-name>` | **Mode E** — build a new project from a saved template (suffix form handled by the skill; no per-template file needed) |
 
@@ -142,6 +142,19 @@ AI Studio has no file system to install into — the skill runs there via paste 
 
 Step-by-step, GET license URL, reference URL patterns and session hygiene: the skill's `references/google-ai-studio.md`.
 
+## Asset generation setup (optional)
+
+The skill works without any of this — the Asset Builder falls back to your own files, keep-existing, SVG and local Blender. Cloud generation needs **one** of two transports:
+
+| Transport | Configure | Behaviour |
+|---|---|---|
+| **Managed credits** (recommended) | `AWD_CREDITS_API_URL=https://credits.your-host` (installer or env) | Balance and checkout live in the credits proxy; the server holds `RENDERFUL_API_KEY`. Your license key (`AGENTIC_LICENSE_KEY`) authenticates. Buy packs via the checkout link. |
+| **Local / BYO key** | `RENDERFUL_API_KEY=...` and no proxy URL | Direct Renderful calls; balance in `~/.agentic-web-developer/credits.json` (`AWD_CREDIT_BALANCE` overrides for CI). You manage top-ups. |
+
+Optional: `AWD_CREDITS_CHECKOUT_URL` overrides the static purchase link (`https://skills.animotion.click/credits`), and `BLENDER_BIN` points at a Blender executable that isn't on `PATH`.
+
+Deploying the proxy yourself (Node ≥ 22.5, Stripe, Renderful, signed file URLs): `server/credits/README.md`; the full release + ops runbook is [PRODUCTION.md](./PRODUCTION.md).
+
 ## Verify
 
 ```bash
@@ -183,8 +196,8 @@ npx animotion-skills install --detect
 
 ## Repository vs npm package vs skill source
 
-- **This Git repository** contains **documentation only** (`README.md`, `docs/`) — the `.gitignore` hides everything else.
-- **The npm package** contains **only the installer** (`bin/install.js`) + docs — never `skill/`. Anything in a published tarball is publicly downloadable forever, so the source stays out of it.
+- **This Git repository** contains documentation (`README.md`, `docs/`), the installer (`bin/`), the managed-credits proxy (`server/credits/`) and release tooling (`scripts/`) — the `.gitignore` hides the skill source and commands.
+- **The npm package** contains the **installer** (`bin/install.js`), the slash commands (`commands/`) and the docs — never `skill/` and never the credits proxy. Anything in a published tarball is publicly downloadable forever, so the private source stays out of it.
 - **The skill source** lives wherever you say: [Skill source](#skill-source) (`--source`, `AWD_SOURCE`, or the author's `awd.source`).
 
 ## Examples

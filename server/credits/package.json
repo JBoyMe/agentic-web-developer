@@ -1,0 +1,17 @@
+{
+  "name": "@agentic-web-developer/credits-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Production credits proxy for the agentic-web-developer Asset Builder — license-bound balance, prepaid packs, Renderful metering/refunds, Stripe checkout, signed outputs.",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "dev": "node --watch src/server.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "check": "node --check src/server.mjs"
+  },
+  "license": "UNLICENSED"
+}

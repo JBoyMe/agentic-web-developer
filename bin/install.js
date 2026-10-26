@@ -4,10 +4,10 @@
  *
  *   npx agentic-web-developer install [--agent=<key>|all] [--source=<url|path>] [--token=<key>]
  *                                     [--license-key=<key> | --admin-email=<e> --admin-secret=<s>]
- *                                     [--force] [--dry-run] [--dir=<path>] [--no-commands]
+ *                                     [--credits-url=<url>] [--force] [--dry-run] [--dir=<path>] [--no-commands]
  *   npx agentic-web-developer detect
  *
- * The npm package ships only this installer (+ docs). The skill payload is
+ * The npm package ships only this installer, the slash commands and docs. The skill payload is
  * resolved from the first available source:
  *
  *   1. --source=<url|path>        explicit flag (URL of a .tar.gz/.zip, or a local folder/archive)
@@ -377,6 +377,38 @@ function writeLicenseConfig(payloadDir) {
   return file;
 }
 
+/* ------------------------ managed credits proxy --------------------------- */
+
+function creditsUrlFlag() {
+  const raw = flags["credits-url"] ?? process.env.AWD_CREDITS_API_URL;
+  if (!raw) return null;
+  const url = String(raw).trim().replace(/\/+$/, "");
+  if (!/^https?:\/\//i.test(url)) {
+    throw new Error(`--credits-url must be an http(s) URL, got "${raw}"`);
+  }
+  return url;
+}
+
+// Writes ~/.agentic-web-developer/config.json — the shared home-dir library the
+// Asset Builder reads for the managed credits proxy. Env AWD_CREDITS_API_URL
+// still wins at session time, so a team can override without reinstalling.
+function writeCreditsConfig() {
+  const url = creditsUrlFlag();
+  if (!url) return null;
+  const dir = path.join(HOME, ".agentic-web-developer");
+  const file = path.join(dir, "config.json");
+  fs.mkdirSync(dir, { recursive: true });
+  let cfg = {};
+  try {
+    cfg = JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, ""));
+  } catch {
+    cfg = {};
+  }
+  cfg.creditsApiUrl = url;
+  fs.writeFileSync(file, `${JSON.stringify(cfg, null, 2)}\n`);
+  return file;
+}
+
 /* ---------------- skill source resolution (private fetch) ---------------- */
 
 function expandHome(p) {
@@ -555,6 +587,7 @@ function detect() {
 
 async function install() {
   validateLicenseFlags();
+  const creditsUrl = creditsUrlFlag();
   const skillDir = await resolveSource();
   const { body, description } = readSource(skillDir);
 
@@ -641,11 +674,21 @@ async function install() {
     done++;
   }
 
+  if (flags["dry-run"] && creditsUrl) {
+    console.log(`[dry-run] credits proxy: ${creditsUrl} -> ${path.join(HOME, ".agentic-web-developer", "config.json")}`);
+  }
+
+  const creditsConfig = flags["dry-run"] ? null : writeCreditsConfig();
+
   if (!done) {
     console.log("nothing installed — everything already present (use --force to overwrite)");
   } else if (!flags["dry-run"]) {
     if (licenseFlagsPresent()) {
       console.log("\nLicense saved — the skill's gate reads animotion-config.json automatically.");
+    }
+    if (creditsConfig) {
+      console.log(`Managed credits configured — ${creditsConfig}`);
+      console.log(`  proxy: ${creditsUrl}  (env AWD_CREDITS_API_URL overrides this file)`);
     }
     console.log(`\nDone. Restart your AI agent so it loads ${SKILL_NAME}.`);
     console.log("Animations for any site built with this skill are handled by the AnimotionJS agentic skill:");
@@ -693,6 +736,10 @@ Options:
   --admin-email=<e> --admin-secret=<s>
                   Admin credentials instead of a key (Animotion staff /
                   whitelisted emails only — both flags required together)
+  --credits-url=<url>
+                  Managed credits proxy base URL (also AWD_CREDITS_API_URL).
+                  Saved to ~/.agentic-web-developer/config.json so the
+                  Asset Builder can quote, generate and buy credits.
   --force         Overwrite an existing install
   --dry-run       Print target paths without copying
   --dir=<path>    Install into <path>/${SKILL_NAME} (flat, SKILL.md layout)
@@ -712,8 +759,9 @@ Slash commands (opencode + claude, unless --no-commands):
   /awd-list                                  print every department + stage; start anywhere
   /awd-taste                                 taste training (not a department —
                                              builds/edits your taste profile any time)
-  /awd-assets                                Asset Builder — audio/video/3D in any mode
-                                             (Renderful credits + local Blender)
+  /awd-assets                                Asset Builder — image/audio/video/3D
+                                             (managed credits · Renderful ·
+                                             local Blender)
   /awd-mode-e                                save the open project as a template / list
                                              the library (Template plan, $25/month)
   /awd-mode-e-<template>                     build from a saved template
@@ -732,6 +780,7 @@ Each agent gets its own file format:
 Examples:
   npx ${SKILL_NAME} install                                # auto-detect agent
   npx ${SKILL_NAME} install --agent=opencode --license-key=sec_live_xxxxxxxx
+  npx ${SKILL_NAME} install --agent=opencode --license-key=KEY --credits-url=https://credits.your-host
   npx ${SKILL_NAME} install --agent=all --source=https://you/server/skill.tar.gz --token=KEY
   npx ${SKILL_NAME} detect
 `);

@@ -20,7 +20,7 @@ The license unlocks the **skill**. It does **not** include asset generation: Pro
 
 The **Asset Builder** (available in every mode via `/awd-assets`, Design 4.3, Mode E E.3) spends from a prepaid credit balance:
 
-- **1 credit = $0.05 of Renderful spend.** The agent shows the exact credit cost before generating and deducts only after a successful download; failed generations are refunded automatically.
+- **1 credit = $0.05 of Renderful spend.** The agent quotes a min–max range from the live model catalogue before generating. In managed mode the proxy reserves the max, settles at the actual cost Renderful returns and refunds the difference; failures and timeouts are refunded in full. In local/BYO mode the skill deducts only after a successful download and writes the refund itself.
 - **Local headless Blender renders cost 0 credits** — block-animation video and full 3D builds on your own machine. Only the cloud AI passes and cloud meshes spend credits.
 - **Prepaid packs, one-time, no auto-renew, no expiry:**
 
@@ -31,13 +31,23 @@ The **Asset Builder** (available in every mode via `/awd-assets`, Design 4.3, Mo
 | Production | 1,000 | **$65** | $0.065 |
 | Agency | 3,000 | **$189** | $0.063 |
 
-Buy at [`skills.animotion.click/credits`](https://skills.animotion.click/credits). The balance lives at `~/.agentic-web-developer/credits.json` (override for CI with `AWD_CREDIT_BALANCE`). Per-model prices: `skill/references/asset-credits.md`.
+### Where the balance lives
+
+| | Managed credits (default when configured) | Local / BYO key |
+|---|---|---|
+| Turned on by | `AWD_CREDITS_API_URL` set (installer or env) | no proxy URL, `RENDERFUL_API_KEY` present |
+| API key holder | the credits proxy — never the skill | your environment |
+| Balance / ledger | proxy (`GET /v1/credits/balance`, `GET /v1/credits/history`) | `~/.agentic-web-developer/credits.json` (CI override `AWD_CREDIT_BALANCE`) |
+| Buy | `POST /v1/credits/checkout` → Stripe link; credits land by signed webhook | operator/manual file edit |
+| Auth | your **license key** (`x-license-key`) — admin credentials unlock the skill but not the proxy | none |
+
+Static purchase fallback: [`skills.animotion.click/credits`](https://skills.animotion.click/credits). Per-model prices: `skill/references/asset-credits.md`. Proxy contract + deploy: `server/credits/README.md`, `docs/PRODUCTION.md`.
 
 > **Plans and credits never mix.** A marketing line that says a plan "includes credits" is wrong. A valid license with an empty balance can still run every department, Mode E, the fallback ladder (user file · keep existing · SVG · skip) — it just cannot generate until credits are bought.
 
 ## Install the skill files (license key or admin credentials)
 
-The npm package ships only the installer — the skill files can also be downloaded directly from the license server with your key or admin pair (Node 18+; opencode path shown):
+The npm package ships only the installer, slash commands and docs — the skill files can also be downloaded directly from the license server with your key or admin pair (Node 18+; opencode path shown):
 
 ```bash
 # bash / zsh — with a Pro license key
