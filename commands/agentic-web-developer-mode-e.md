@@ -12,6 +12,6 @@ Run the **agentic-web-developer** skill (read its `SKILL.md` first).
    - **No arguments + a project with site code is open** → **E-Save**: run stages **E.S1 → E.S4** (scan → placeholder extraction → sanitization → manifest + save to the library). Ask first if the intent is ambiguous (save vs build).
    - **No arguments + no project** → list `~/.agentic-web-developer/templates/` (each `template.md` card) and ask: pick a template to build from, or save a project as one.
 3. One gate per stage; record everything under `## Mode E` in `build-state.md`; append the **progress footer** to every response (Mode E stages print as `Stage E.n/6`, save flow `E.Sn/4`).
-4. Asset generation never blocks: no `RENDERFUL_API_KEY` / no Blender / empty balance → offer user file / keep demo / SVG / skip; **always credit-gate before generating** — credits are a separate purchase from the $25 plan (`references/asset-credits.md`), local Blender routes cost 0 credits, and every controllable asset gets its AB.5 control-interaction brief for Animotion Studio.
+4. Asset generation never blocks: no proxy / no `RENDERFUL_API_KEY` / no Blender / empty balance → offer user file / keep demo / SVG / skip; **always credit-gate before generating** — credits are a separate purchase from the $25 plan (`references/asset-credits.md`), local Blender routes cost 0 credits, and every controllable asset gets its AB.5 control-interaction brief for Animotion Studio.
 
 User arguments: $ARGUMENTS
