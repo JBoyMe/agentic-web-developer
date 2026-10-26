@@ -406,6 +406,18 @@ export function validateConfig(config, log) {
 }
 
 export async function startServer() {
+  // The documented local setup is `cp .env.example .env`; Node does not read it
+  // on its own, so load it here. Real environment variables always win, and a
+  // missing file is fine (Docker/hosted deploys pass env directly).
+  if (typeof process.loadEnvFile === "function") {
+    const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+    try {
+      process.loadEnvFile(process.env.ENV_FILE || path.join(root, ".env"));
+    } catch {
+      /* no .env file: rely on the process environment */
+    }
+  }
+
   const config = loadConfig();
   const log = createLogger(config.logLevel);
   validateConfig(config, log);

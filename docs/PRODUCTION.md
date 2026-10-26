@@ -369,26 +369,80 @@ On macOS/Windows use the equivalent Blender user-scripts path. Enable **CineBloc
 ### Headless smoke test
 
 ```bash
-blender --background --factory-startup --python-expr "
-import bpy
-print('BLENDER_OK', bpy.app.version_string)
-" 2>&1 | grep BLENDER_OK
+npm run qa:blender                              # finds Blender automatically
+BLENDER_BIN="/path/to/blender" npm run qa:blender   # explicit binary
+npm run qa:blender -- --keep                    # keep frames + .glb in .blender-smoke/
 ```
 
-Then run one small blockout with the add-on and confirm:
+`scripts/qa-blender.mjs` locates Blender (env → `PATH` → the usual Windows/macOS/Linux install
+paths), then runs `scripts/blender-smoke.py` which loads the add-on, builds a camera rig with the
+deterministic operator, renders three frames of a small blockout, and exports a Draco `.glb`. The
+wrapper then re-parses the GLB in Node and asserts:
 
-- [ ] frames are written to the expected folder;
-- [ ] no proxy call is made (balance unchanged, no `reserve` entry);
-- [ ] a `.glb` export with Draco is readable in a browser viewer;
-- [ ] `blender`/`BLENDER_BIN` detection works when the binary is not on `PATH`.
+- [x] Blender runs headless;
+- [x] the add-on registers and reports its version;
+- [x] the rig operator finishes, adds a `TRACK_TO` constraint and DOF focus, and keyframes the camera;
+- [x] three non-empty PNG frames are written to the output folder;
+- [x] the `.glb` is a valid glTF 2 binary with meshes, and declares `KHR_draco_mesh_compression`
+      as used *and* required;
+- [x] the add-on contains no network/subprocess code, so the local engine cannot spend credits.
 
-Do this on every OS you claim to support, and re-run after any Blender major upgrade.
+Verified 2026-10-26 on **Blender 5.0.1** (Python 3.11.13, Windows): 7/7 checks, 3 frames ≈ 48 kB
+each, 3,140-byte Draco GLB loaded by **three.js r169** in a real browser (`GLB_OK`, 3 meshes, 52
+vertices, `KHR_draco_mesh_compression`). Blender ≥ 4.4 uses slotted Actions; the smoke script reads
+both the legacy `action.fcurves` and the newer `layers/strips/channelbags` shape.
+
+Blender is optional at runtime. If it is missing, the skill must fall back (cloud 3D mesh, user file,
+SVG, skip) rather than fail — do not add `qa:blender` to CI on a runner without Blender. Re-run this
+check on every OS you claim to support and after any Blender major upgrade.
 
 ---
 
 ## 8. End-to-end QA
 
 Run the matrix before every public release, and at least monthly against production.
+
+### 8.0 Automated coverage (no spend, no live Stripe)
+
+Two scripts run the parts of the matrix that do not need a real card or a paid generation:
+
+```bash
+npm run qa:credits    # real proxy HTTP + SQLite against a local fake Renderful
+npm run qa:catalog    # read-only drift check against the live Renderful catalogue
+npm run qa:blender    # headless add-on + rig + render + Draco GLB (needs Blender, optional)
+npm run qa            # unit tests + credits + catalog (no Blender required)
+```
+
+`qa:credits` boots the actual proxy (`createApp`, real DB, pricing, storage, signed URLs, Stripe
+signature verifier) on an ephemeral port with `RENDERFUL_BASE` pointed at a fake upstream whose USD
+ranges match the live catalogue. It asserts, in order: health/pack/catalogue shape; unknown model and
+type rejection; min–max quote and reserve-max; `402 payment_required` on a zero balance with no
+ledger row; `401` without a licence key; admin-grant auth and idempotency; reserve before submit;
+`Idempotency-Key` replay; on-demand polling; output download; settle with no drift; refund of the
+quote difference; overage settle above the quote; full refund on provider failure and on output
+download failure; signed URL `200`/`HEAD`/`Range 206`; tampered, expired and traversal paths refused;
+job re-read re-signing a working URL; concurrent jobs never overdrawing; and every Stripe webhook
+branch (grant, replay by event id, second event for a paid intent, `client_reference_id`, bad
+signature, stale timestamp, rewritten body, amount mismatch, unpaid session, missing/unknown intent,
+unrelated event). It fails the process on any assertion.
+
+`qa:catalog` parses the Image/Audio/3D/Video tables in `skill/references/asset-credits.md` plus the
+`VERIFIED_MODELS` allowlist in `scripts/release-check.js`, then compares each id with
+`GET https://api.renderful.ai/api/v1/models`: id present for that media kind, live `cost.min/max`
+equal to the documented range, and documented credits equal `ceil(usd / $0.05)`. Run it after any
+Renderful catalogue change; `--tolerance=0.05` relaxes the price comparison.
+
+Last run (2026-10-26): `qa:credits` **33/33**, `qa:catalog` **23/23 documented models**, 580 live
+models (575 priced), `qa:blender` **7/7** on Blender 5.0.1, compatible with `node:sqlite` on Node 25.9.
+
+What still needs a human before launch:
+
+| Check | Why it cannot be automated here |
+|---|---|
+| Real checkout: pay the cheapest pack with a card, confirm `purchase +100`, refund it | requires live Stripe + a card; `STRIPE_SECRET_KEY` is `sk_live_` on this machine |
+| Stripe dashboard webhook delivery to the deployed proxy | needs a public HTTPS endpoint registered in Stripe |
+| One paid generation per kind (image/audio/video/3D) | spends real Renderful credit; quote-only checks prove the pricing path |
+| Blender on each supported OS | `qa:blender` automates the render + GLB on one machine; repeat on macOS/Linux |
 
 ### 8.1 Install + entry points
 
@@ -414,6 +468,9 @@ Entry points: `/awd-assets` · Design **4.3** · Mode E **E.3** · Mode C asset 
 | `AWD_CREDITS_API_URL` empty string | ignored; config file / direct path used |
 
 ### 8.3 Credit paths
+
+The first twelve items below are asserted end-to-end by `npm run qa:credits` (§8.0); the checkout
+link, live Stripe delivery and a real paid generation remain manual.
 
 - [ ] Balance 0 → quote shows the range and the shortfall → gate offers a pack → checkout link works.
 - [ ] `402 payment_required` on create when balance < max reservation.

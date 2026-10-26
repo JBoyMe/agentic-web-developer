@@ -24,9 +24,12 @@ skill session ──license key──▶ credits proxy ──Bearer key──▶
 cd server/credits
 cp .env.example .env
 # fill RENDERFUL_API_KEY, FILE_SIGNING_SECRET, PUBLIC_BASE_URL, LICENSE_VALIDATE_URL
-node src/server.mjs
+node src/server.mjs          # reads .env automatically (real env vars win)
 curl -s localhost:8787/health | jq
 ```
+
+`src/server.mjs` calls `process.loadEnvFile` on `./.env` (override with `ENV_FILE`), so the
+`cp` above is enough — no `export`/dotenv step. A missing file is ignored.
 
 Generate the two secrets with `openssl rand -hex 32`. `FILE_SIGNING_SECRET` is mandatory;
 `ADMIN_SECRET` enables operator grants.
@@ -245,8 +248,20 @@ path and expiry; changing either returns `403`. Files are never listed publicly.
 
 ```bash
 cd server/credits
-npm test
+npm test          # unit + in-process HTTP tests (no network, no spend)
+npm run qa        # end-to-end: real proxy HTTP + SQLite against a fake Renderful
+npm run qa:catalog  # read-only drift check against the live Renderful catalogue
 ```
+
+`npm run qa` boots the real proxy on an ephemeral port with a local fake upstream and drives
+quote → 402 gate → admin grant → reserve → poll → settle/refund (including overage, upstream
+failure and output-download failure) → signed URL (Range, tamper, expiry) → signed Stripe webhook
+events (grant, replay, amount mismatch, unpaid, unknown intent). It never calls Stripe and never
+spends Renderful credits; the fake catalogue uses the live USD ranges.
+
+`npm run qa:catalog` needs network (the `/models` endpoint is public; set `RENDERFUL_API_KEY` if
+you want the authenticated view). It fails if a documented model id disappears or its live
+`cost.min`/`cost.max` drifts from `skill/references/asset-credits.md`.
 
 Covers pricing ranges and fallback, atomic debit/credit/idempotency, quote reserve → settle/refund,
 failure and timeout refunds, Stripe signature verification and replay protection, signed URLs,

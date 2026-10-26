@@ -11,6 +11,8 @@
     "start": "node src/server.mjs",
     "dev": "node --watch src/server.mjs",
     "test": "node --test \"test/*.test.mjs\"",
+    "qa": "node ../../scripts/qa-credits.mjs",
+    "qa:catalog": "node ../../scripts/live-catalog-check.mjs",
     "check": "node --check src/server.mjs"
   },
   "license": "UNLICENSED"

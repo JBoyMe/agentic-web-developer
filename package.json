@@ -43,6 +43,10 @@
     "install:skill": "node bin/install.js install",
     "pack:check": "npm pack --dry-run",
     "test:credits": "node --test \"server/credits/test/*.test.mjs\"",
+    "qa:credits": "node scripts/qa-credits.mjs",
+    "qa:catalog": "node scripts/live-catalog-check.mjs",
+    "qa:blender": "node scripts/qa-blender.mjs",
+    "qa": "npm run test:credits && npm run qa:credits && npm run qa:catalog",
     "release:build": "node scripts/build-skill.js",
     "release:verify": "node scripts/verify-release.js",
     "release:check": "node scripts/release-check.js"

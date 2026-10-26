@@ -24,3 +24,5 @@ server/credits/.env.*
 server/credits/data/
 server/credits/*.sqlite*
 server/credits/*.db
+# Blender smoke output (npm run qa:blender -- --keep)
+.blender-smoke/
