@@ -460,7 +460,9 @@ equal to the documented range, and documented credits equal `ceil(usd / $0.05)`.
 Renderful catalogue change; `--tolerance=0.05` relaxes the price comparison.
 
 Last run (2026-10-26): `qa:credits` **33/33**, `qa:catalog` **23/23 documented models**, 580 live
-models (575 priced), `qa:blender` **7/7** on Blender 5.0.1, compatible with `node:sqlite` on Node 25.9.
+models (575 priced), `qa:blender` **7/7** on Blender 5.0.1, `qa:stripe` **9/9** (test mode: session
+accepted, real webhook delivered, `purchase +100`, landing page confirmed, refund honoured),
+compatible with `node:sqlite` on Node 25.9.
 
 What still needs a human before launch:
 

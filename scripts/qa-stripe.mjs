@@ -206,14 +206,32 @@ async function main() {
 
   console.log(`\nStripe test-mode checkout QA\n  proxy  ${base}\n  pack   ${PACK} · ${PACK_CREDITS} credits · $${(PACK_CENTS / 100).toFixed(2)}\n`);
 
-  // 1. stripe listen -> signing secret for the forwarded endpoint
-  const listen = spawnCapture(stripeCli, ["listen", "--api-key", key, "--forward-to", forward]);
+  // 1. stripe listen -> signing secret for the forwarded endpoint.
+  //     CLI >= 1.5x refuses to start without an explicit event list.
+  const listen = spawnCapture(stripeCli, [
+    "listen",
+    "--api-key",
+    key,
+    "--events",
+    "checkout.session.completed,checkout.session.async_payment_succeeded",
+    "--forward-to",
+    forward
+  ]);
   let webhookSecret = "";
   try {
-    webhookSecret = await waitFor(
-      () => /(whsec_[A-Za-z0-9]+)/.exec(listen.output())?.[1] ?? null,
+    // Fail fast on a CLI error instead of eating the full timeout: waitFor
+    // swallows probe errors, so signal death with a sentinel value instead.
+    const found = await waitFor(
+      () => {
+        const secret = /(whsec_[A-Za-z0-9]+)/.exec(listen.output())?.[1];
+        if (secret) return { secret };
+        if (listen.child.exitCode !== null) return { dead: listen.child.exitCode };
+        return null;
+      },
       { timeoutMs: 30000 }
     );
+    if (found.dead !== undefined) throw new Error(`stripe listen exited (${found.dead})`);
+    webhookSecret = found.secret;
     step("stripe listen is forwarding to the proxy", `signing secret ${webhookSecret.slice(0, 12)}…`);
   } catch (e) {
     fail("stripe listen started", `${e.message} :: ${listen.output().slice(-300)}`);
@@ -232,7 +250,11 @@ async function main() {
       PUBLIC_BASE_URL: base,
       DATA_DIR: "./data-qa",
       STRIPE_WEBHOOK_SECRET: webhookSecret,
-      STRIPE_SECRET_KEY: key
+      STRIPE_SECRET_KEY: key,
+      // Explicit env beats the env file (process.loadEnvFile never overrides),
+      // so the redirect URLs follow this run's ephemeral port.
+      STRIPE_SUCCESS_URL: `${base}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      STRIPE_CANCEL_URL: `${base}/checkout/cancel`
     }
   });
 
