@@ -222,6 +222,17 @@ async function probe(base, pathname, init = {}) {
   }
 }
 
+/** First path that is not a 404 — the folded backend and the standalone proxy
+ *  differ in both prefixes and route names. */
+async function probeAny(base, paths, init = {}) {
+  let last = null;
+  for (const pathname of paths) {
+    last = await probe(base, pathname, init);
+    if (last.status !== 404) return { ...last, pathname };
+  }
+  return { ...last, pathname: paths[paths.length - 1] };
+}
+
 async function checkLive(base) {
   let url;
   try {
@@ -247,16 +258,23 @@ async function checkLive(base) {
   } catch {
     /* reported below */
   }
-  if (health.status !== 200 || !body?.ok) fail("GET /health", `HTTP ${health.status}`);
-  else ok("GET /health", `${health.ms} ms`);
+  if (health.status !== 200 || !(body?.ok || body?.status === "ok")) {
+    fail("GET /health", `HTTP ${health.status}`);
+  } else ok("GET /health", `${health.ms} ms`);
 
-  if (body) {
-    if (body.stripe) ok("stripe configured", "secret key present");
+  // Two supported layouts: the folded Animotion backend nests the credits
+  // fields under /health.credits and serves /v1/credits + /api/stripe; the
+  // standalone proxy puts them at the top level and serves /v1/stripe.
+  const folded = Boolean(body?.credits);
+  const h = folded ? body.credits : body;
+
+  if (h) {
+    if (h.stripe) ok("stripe configured", "secret key present");
     else fail("stripe configured", "health reports no Stripe key — checkout will 503");
-    if (body.stripeWebhook) ok("webhook secret", "present");
+    if (h.stripeWebhook) ok("webhook secret", "present");
     else fail("webhook secret", "missing — every Stripe delivery will be refused");
-    if (Number(body.packs) === 4) ok("packs", "4 credit packs");
-    else warn("packs", `${body.packs} packs reported`);
+    if (Number(h.packs) === 4) ok("packs", "4 credit packs");
+    else warn("packs", `${h.packs} packs reported`);
   }
 
   const packs = await probe(base, "/v1/credits/packs");
@@ -277,46 +295,62 @@ async function checkLive(base) {
   if (bal.status === 401) ok("licence gate", "balance without a key → 401");
   else fail("licence gate", `expected 401 without a licence key, got ${bal.status}`);
 
-  const admin = await probe(base, "/v1/admin/grant", {
+  const admin = await probeAny(base, ["/v1/credits/admin/grant", "/v1/admin/grant"], {
     method: "POST",
     headers: { "content-type": "application/json", "x-admin-secret": "wrong-secret" },
     body: JSON.stringify({ accountId: "acct_probe", credits: 1 })
   });
-  if (admin.status === 401) ok("admin gate", "wrong secret → 401");
+  if (admin.status === 401) ok("admin gate", `wrong secret → 401 (${admin.pathname})`);
   else if (admin.status === 404) fail("admin gate", "route missing (404) — deploy is stale");
   else fail("admin gate", `expected 401 for a wrong secret, got ${admin.status}`);
 
   // The bug we already shipped once: Stripe redirects here, and the route did
   // not exist, so every paying buyer got a 404 at the worst possible moment.
-  for (const [label, p] of [
-    ["GET /checkout/success", "/checkout/success?session_id=cs_probe_unknown"],
-    ["GET /checkout/cancel", "/checkout/cancel"]
+  for (const [label, paths] of [
+    [
+      "GET post-checkout success",
+      [
+        "/v1/credits/checkout/success?session_id=cs_probe_unknown",
+        "/checkout/success?session_id=cs_probe_unknown"
+      ]
+    ],
+    ["GET post-checkout cancel", ["/v1/credits/checkout/cancel", "/checkout/cancel"]]
   ]) {
-    const res = await probe(base, p);
+    const res = await probeAny(base, paths);
     if (res.status === 404) fail(label, "404 — Stripe redirects buyers here; deploy is stale");
-    else if (res.status !== 200) fail(label, `HTTP ${res.status}`);
+    else if (res.status !== 200) fail(label, `HTTP ${res.status} (${res.pathname})`);
     else if (!/text\/html/.test(res.headers.get("content-type") ?? "")) fail(label, "not served as HTML");
     else if (!looksLikeHtml(res.text)) fail(label, "not an HTML page");
     else if (res.headers.get("cache-control") !== "no-store") warn(label, "not no-store — a payment page should not be cached");
-    else ok(label, `${res.text.length} bytes, no-store`);
+    else ok(label, `${res.text.length} bytes, no-store (${res.pathname})`);
   }
 
   // A bad signature must be rejected by the verifier (400), not by a missing
   // route (404) or an unconfigured integration (503). That proves both halves.
-  const hook = await probe(base, "/v1/stripe/webhook", {
+  const hook = await probeAny(base, ["/api/stripe/webhook", "/v1/stripe/webhook"], {
     method: "POST",
     headers: { "content-type": "application/json", "stripe-signature": "t=1,v1=deadbeef" },
     body: "{}"
   });
-  if (hook.status === 400) ok("POST /v1/stripe/webhook", "route live, bad signature rejected");
-  else if (hook.status === 404) fail("POST /v1/stripe/webhook", "route missing (404) — Stripe has nowhere to deliver");
-  else if (hook.status === 503) fail("POST /v1/stripe/webhook", "503 — STRIPE_WEBHOOK_SECRET is not set on the server");
-  else fail("POST /v1/stripe/webhook", `expected 400 for a bad signature, got ${hook.status}`);
+  if (hook.status === 400) ok(`POST ${hook.pathname}`, "route live, bad signature rejected");
+  else if (hook.status === 404) fail(`POST ${hook.pathname}`, "route missing (404) — Stripe has nowhere to deliver");
+  else if (hook.status === 503) fail(`POST ${hook.pathname}`, "503 — STRIPE_WEBHOOK_SECRET is not set on the server");
+  else fail(`POST ${hook.pathname}`, `expected 400 for a bad signature, got ${hook.status}`);
 
-  const signed = await probe(base, "/files/acct_probe/job_probe/1.png?exp=1&sig=nope");
-  if (signed.status === 403) ok("signed files", "forged link rejected");
-  else if (signed.status === 404) fail("signed files", "route missing (404) — outputs will not download");
-  else fail("signed files", `expected 403 for a bad signature, got ${signed.status}`);
+  if (folded) {
+    const driver = typeof h?.storage === "string" ? h.storage : h?.storage?.driver ?? "unknown";
+    ok(
+      "signed files",
+      driver === "passthrough"
+        ? "passthrough — outputs are provider CDN URLs, no server file route"
+        : `${driver} — outputs are presigned URLs, no server file route`
+    );
+  } else {
+    const signed = await probe(base, "/files/acct_probe/job_probe/1.png?exp=1&sig=nope");
+    if (signed.status === 403) ok("signed files", "forged link rejected");
+    else if (signed.status === 404) fail("signed files", "route missing (404) — outputs will not download");
+    else fail("signed files", `expected 403 for a bad signature, got ${signed.status}`);
+  }
 
   // A licence-gated prefix answers 401 before routing, so probe outside it and
   // require the proxy's own JSON 404 — a host-level 404 page would mean the
@@ -338,7 +372,11 @@ async function checkLive(base) {
   // a host that does not resolve. If the deployment says where it thinks it is,
   // check that the two agree.
   const canonical = new URL(base);
-  if (health.headers.get("content-type")?.includes("json")) {
+  const configuredBase = String(h?.publicBaseUrl ?? "").replace(/\/+$/, "");
+  if (configuredBase) {
+    if (configuredBase === canonical.origin) ok("public base", configuredBase);
+    else fail("public base", `health says ${configuredBase}, probe is ${canonical.origin}`);
+  } else if (health.headers.get("content-type")?.includes("json")) {
     ok("public base", `probed ${canonical.origin} — confirm PUBLIC_BASE_URL matches it`);
   }
 }

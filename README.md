@@ -94,11 +94,17 @@ Pick one — the gate looks for environment variables first, then the installer'
 **1. Install the skill with your key (recommended — one command, everything wired)**
 
 ```bash
-npx agentic-web-developer install --agent=<your-agent> --license-key=YOUR_KEY
+npx agentic-web-developer install --agent=<your-agent> --license-key=YOUR_KEY \
+  --credits-url=https://skills.animotion.click
 
 # or install for every detected agent at once:
-npx agentic-web-developer install --all --license-key=YOUR_KEY
+npx agentic-web-developer install --all --license-key=YOUR_KEY \
+  --credits-url=https://skills.animotion.click
 ```
+
+`--credits-url` wires the **managed credit packs** (prepaid, separate from your plan) into
+`~/.agentic-web-developer/config.json`; without it, cloud generation needs your own
+`RENDERFUL_API_KEY`. Packs and prices: [Generation credits](#generation-credits---separate-from-every-plan).
 
 With **admin credentials instead of a license key** (Animotion staff / whitelisted emails only):
 

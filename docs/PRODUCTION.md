@@ -12,7 +12,7 @@ Read this top to bottom the first time. After that, use the [release checklist](
 |---|---|---|---|
 | **Skill payload** (`skilltar.gz`) | `SKILL.md`, 11 departments, 25 references, templates, `assets/cineblock_ai_blender_addon.py` | Private immutable CDN URL in `package.json → awd.source` | Upload a **new** file, bump `awd.source`, publish a patch |
 | **npm package** (`agentic-web-developer`) | `bin/install.js`, `commands/`, `docs/`, `README.md`, `package.json` | npm registry | `npm publish` |
-| **Credits proxy** | `server/credits/` — Node ≥ 22.5, zero runtime deps, SQLite | Your VM / container + TLS host | Deploy a new image tag, restart |
+| **Credits service** | `backend/credits/` in the Animotion repo — Postgres ledger, folded into the existing licence/CDN backend at `https://skills.animotion.click` | Vercel (already deployed) | `vercel deploy --prod` from `backend/` |
 | **Stripe** | Checkout sessions + webhook → credits | Stripe dashboard | Config only |
 
 Hard rules:
@@ -31,13 +31,13 @@ Hard rules:
 - [ ] npm account with publish rights to `agentic-web-developer` (2FA enabled).
 - [ ] Renderful account → API key (`RENDERFUL_API_KEY`).
 - [ ] Stripe account, **live** keys, webhook signing secret.
-- [ ] A host for the proxy with a persistent volume and TLS (`credits.your-host`).
+- [ ] The deployed backend (`https://skills.animotion.click`) — credits are folded into it, no extra host. A VM/Vercel project is only needed if you choose the standalone fallback in §5.1.
 - [ ] The license validator reachable at `https://skills.animotion.click/api/license/validate`.
 - [ ] A Blender 4.x install on the release machine (and on any machine you claim supports local 3D/video).
 
 ### Tools
 
-- Node **24 LTS** (minimum 22.5; the proxy uses `node:sqlite`).
+- Node **20 LTS** for the folded backend (it uses Postgres). The standalone fallback needs **22.5+** (`node:sqlite`).
 - `git`, `tar`, `curl`, `jq` (optional), `stripe` CLI (optional), `openssl`.
 - Blender on `PATH` or `BLENDER_BIN` set.
 
@@ -198,7 +198,7 @@ npx agentic-web-developer@<version> install \
   --agent=opencode \
   --source=https://your-cdn/skill-2.3.1.tar.gz \
   --license-key=YOUR_TEST_KEY \
-  --credits-url=https://credits.your-host \
+  --credits-url=https://skills.animotion.click \
   --home=/tmp/awd-npm-smoke
 ```
 
@@ -210,7 +210,47 @@ Confirm `~/.agentic-web-developer/config.json` was written and the skill directo
 
 ## 5. Deploy the credits proxy
 
-### 5.1 Host + TLS
+### 5.0 The deployed path: folded into the Animotion backend
+
+Credits now run **inside the existing Animotion backend** (`backend/` in the
+Animotion repo, the same Express app that serves licences and the skills CDN) at
+`https://skills.animotion.click`. There is no separate container, no disk and no
+SQLite file:
+
+| Piece | Folded deployment |
+|---|---|
+| Ledger | the backend's existing Postgres (`DATABASE_URL` / `DB_*`) |
+| Account identity | licence **email** (monthly key re-issues keep the balance) |
+| Licence check | in-process `validateLicense()` — no `LICENSE_VALIDATE_URL` |
+| Stripe webhook | `POST /api/stripe/webhook`, shared with plan subscriptions; only `chk_` intents are treated as credit purchases |
+| Storage | `passthrough` by default (outputs stay as Renderful CDN URLs, so Vercel's 4.5 MB response cap never applies); R2 is opt-in |
+| Reconciliation | on read + opportunistic + `GET|POST /v1/credits/cron/reconcile` with `x-cron-secret`; no Vercel cron entry |
+
+Deploy from `backend/` (the Animotion GitHub repo publishes docs only, so this is
+**not** a Git push):
+
+```bash
+cd backend
+vercel deploy --prod --yes
+vercel alias set <deployment-url> skills.animotion.click
+```
+
+Production env already present: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+`ADMIN_SECRET`, the DB credentials, `LICENSE_ENCRYPTION_KEY`,
+`CREDITS_CRON_SECRET`, `PUBLIC_BASE_URL=https://skills.animotion.click`.
+`RENDERFUL_API_KEY` is the only key still required for generation — without it
+quotes/models/packs work and generation returns 503.
+
+Verify:
+
+```bash
+node scripts/check-deploy.mjs --url=https://skills.animotion.click
+```
+
+The checker understands both layouts (folded `/health.credits` + `/v1/credits` +
+`/api/stripe/webhook`, and the standalone `/v1/*` surface below).
+
+### 5.1 Standalone host + TLS (fallback)
 
 1. VM (1–2 vCPU, 1 GB RAM is enough for the first hundreds of accounts) with a persistent disk.
 2. DNS `credits.your-host` → VM.
@@ -226,7 +266,7 @@ credits.your-host {
 }
 ```
 
-### 5.1a Render + Cloudflare (the deployed path)
+### 5.1a Render + Cloudflare (fallback)
 
 `render.yaml` at the repo root describes the whole service: the image built from
 the `Dockerfile` at the repo root, a 1 GB disk at `/data`, `/health` as the check, and every
@@ -284,7 +324,13 @@ openssl rand -hex 32   # FILE_SIGNING_SECRET
 openssl rand -hex 32   # ADMIN_SECRET (operator grants)
 ```
 
-Required in production (the service refuses to boot without them):
+This section is for the **standalone fallback** below. The folded deployment in
+§5.0 reuses the backend's existing env (`DATABASE_URL`/`DB_*`,
+`LICENSE_ENCRYPTION_KEY`, `STRIPE_*`, `ADMIN_SECRET`) plus `CREDITS_CRON_SECRET`
+and `PUBLIC_BASE_URL`; `RENDERFUL_API_KEY` is the only generation key still
+missing.
+
+Required in production (the standalone service refuses to boot without them):
 
 | Key | Value |
 |---|---|
@@ -331,19 +377,20 @@ Verify the deployment before you announce it. Two commands, no spend:
 npm run check:deploy -- --env=server/credits/.env
 
 # 2. Is the running deployment actually the code you think it is?
-npm run check:deploy -- --url=https://credits.your-host
+npm run check:deploy -- --url=https://skills.animotion.click
 ```
 
 The live mode asserts `/health`, pack prices, the licence gate (401), the admin gate (401), both
 post-checkout pages (HTML + `no-store`), the webhook route (400 on a forged signature — not 404 and
-not 503), signed-file rejection (403), and that an unknown path returns the proxy's JSON 404 rather
+not 503), signed-file rejection (403 on the standalone layout; the folded passthrough layout serves
+provider CDN URLs instead), and that an unknown path returns the proxy's JSON 404 rather
 than a host page. Run it after every deploy: the 404 it checks for is exactly the bug that shipped
 once already, and it is invisible until a buyer has paid.
 
 Then exercise the API with a real licence key:
 
 ```bash
-BASE=https://credits.your-host
+BASE=https://skills.animotion.click
 KEY=YOUR_TEST_LICENSE_KEY
 
 curl -s "$BASE/v1/credits/packs" | jq
@@ -360,17 +407,20 @@ curl -sX POST "$BASE/v1/credits/generations" \
   -d '{"type":"text-to-image","model":"flux-dev","prompt":"a calm gradient sky"}' | jq
 ```
 
-Poll `GET /v1/credits/generations/:id` until `completed`; download the signed URL **before** `expiresIn` runs out. Re-request the job to mint a fresh URL.
+Poll `GET /v1/credits/generations/:id` until `completed`. The folded deployment defaults to
+`passthrough`, so outputs are the provider's CDN URLs; if you enabled R2 the response carries
+presigned URLs — fetch them **before** `expiresIn` runs out and re-request the job for a fresh one.
 
 Grant a test balance (no Stripe needed):
 
 ```bash
-curl -sX POST "$BASE/v1/admin/grant" \
+# folded: /v1/credits/admin/grant   ·   standalone: /v1/admin/grant
+curl -sX POST "$BASE/v1/credits/admin/grant" \
   -H "x-admin-secret: $ADMIN_SECRET" -H "content-type: application/json" \
   -d '{"accountId":"acct_REPLACE","credits":20,"note":"smoke test","idempotencyKey":"smoke-01"}' | jq
 ```
 
-### 5.5 Persistence and boot behaviour
+### 5.5 Persistence and boot behaviour (standalone fallback)
 
 - `DATA_DIR/credits.sqlite*` (WAL) holds accounts, ledger, jobs, intents, webhook ids.
 - `DATA_DIR/files/` holds generated outputs.
@@ -382,19 +432,25 @@ curl -sX POST "$BASE/v1/admin/grant" \
 
 ## 6. Stripe
 
-The proxy creates Checkout Sessions with **dynamic `price_data`** from its own pack catalogue — you do **not** need to create Stripe Products/Prices.
+The service creates Checkout Sessions with **dynamic `price_data`** from its own pack catalogue — you do **not** need to create Stripe Products/Prices.
 
 1. Stripe dashboard → Developers → API keys → copy the **secret** key into `STRIPE_SECRET_KEY`.
 2. Developers → Webhooks → **Add endpoint**:
-   - URL: `https://credits.your-host/v1/stripe/webhook`
+   - URL (folded deployment): `https://skills.animotion.click/api/stripe/webhook`
+   - URL (standalone fallback): `https://credits.your-host/v1/stripe/webhook`
    - Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`
-   - Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
-3. Restart the proxy; `GET /health` must show `stripe: true` and `stripeWebhook: true`.
+   - Copy the signing secret into `STRIPE_WEBHOOK_SECRET`. The folded endpoint is shared
+     with plan subscriptions; only sessions whose id starts `chk_` (credit packs) are
+     applied to the ledger.
+3. Redeploy/restart; `GET /health` must show `stripe: true` and `stripeWebhook: true`
+   (folded: under `/health.credits`). Failures in the ledger return 500 so Stripe
+   re-delivers; grants are idempotent per event id.
 4. Local test:
 
 ```bash
 stripe login
-stripe listen --forward-to localhost:8787/v1/stripe/webhook
+stripe listen --forward-to localhost:5000/api/stripe/webhook   # folded
+# standalone: stripe listen --forward-to localhost:8787/v1/stripe/webhook
 ```
 
 5. **Full end-to-end test (test mode, $0).** Do this before launch and after any change to the
@@ -547,7 +603,7 @@ What still needs a human before launch:
 |---|---|
 | Fresh HOME, `--agent=opencode`, remote payload | skill + 31 commands installed, `detect` says `INSTALLED` |
 | `--home` throwaway + `--force` | idempotent reinstall |
-| `--credits-url=https://credits.your-host` | `~/.agentic-web-developer/config.json` has `creditsApiUrl` |
+| `--credits-url=https://skills.animotion.click` | `~/.agentic-web-developer/config.json` has `creditsApiUrl` |
 | `--credits-url=ftp://…` | installer rejects the URL |
 | Bad/expired license | gate blocks skill stages; `/awd-assets` never bypasses the gate |
 | Valid Template key | passes the same gate; does **not** unlock credits |

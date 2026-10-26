@@ -780,7 +780,7 @@ Each agent gets its own file format:
 Examples:
   npx ${SKILL_NAME} install                                # auto-detect agent
   npx ${SKILL_NAME} install --agent=opencode --license-key=sec_live_xxxxxxxx
-  npx ${SKILL_NAME} install --agent=opencode --license-key=KEY --credits-url=https://credits.your-host
+  npx ${SKILL_NAME} install --agent=opencode --license-key=KEY --credits-url=https://skills.animotion.click
   npx ${SKILL_NAME} install --agent=all --source=https://you/server/skill.tar.gz --token=KEY
   npx ${SKILL_NAME} detect
 `);

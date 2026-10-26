@@ -152,7 +152,7 @@ The skill works without any of this — the Asset Builder falls back to your own
 
 | Transport | Configure | Behaviour |
 |---|---|---|
-| **Managed credits** (recommended) | `AWD_CREDITS_API_URL=https://credits.your-host` (installer or env) | Balance and checkout live in the credits proxy; the server holds `RENDERFUL_API_KEY`. Your license key (`AGENTIC_LICENSE_KEY`) authenticates. Buy packs via the checkout link. |
+| **Managed credits** (recommended) | `AWD_CREDITS_API_URL=https://skills.animotion.click` (installer or env) | Balance and checkout live in the managed credits service; the server holds `RENDERFUL_API_KEY`. Your license key (`AGENTIC_LICENSE_KEY`) authenticates. Buy packs via the checkout link. |
 | **Local / BYO key** | `RENDERFUL_API_KEY=...` and no proxy URL | Direct Renderful calls; balance in `~/.agentic-web-developer/credits.json` (`AWD_CREDIT_BALANCE` overrides for CI). You manage top-ups. |
 
 Optional: `AWD_CREDITS_CHECKOUT_URL` overrides the static purchase link (`https://skills.animotion.click/credits`), and `BLENDER_BIN` points at a Blender executable that isn't on `PATH`.
