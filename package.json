@@ -46,6 +46,7 @@
     "qa:credits": "node scripts/qa-credits.mjs",
     "qa:catalog": "node scripts/live-catalog-check.mjs",
     "qa:blender": "node scripts/qa-blender.mjs",
+    "qa:stripe": "node scripts/qa-stripe.mjs",
     "qa": "npm run test:credits && npm run qa:credits && npm run qa:catalog",
     "release:build": "node scripts/build-skill.js",
     "release:verify": "node scripts/verify-release.js",

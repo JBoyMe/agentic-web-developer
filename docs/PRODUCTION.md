@@ -328,12 +328,32 @@ The proxy creates Checkout Sessions with **dynamic `price_data`** from its own p
 ```bash
 stripe login
 stripe listen --forward-to localhost:8787/v1/stripe/webhook
-stripe trigger checkout.session.completed   # uses a matching intent only in test mode
 ```
 
-For a full end-to-end test, call `POST /v1/credits/checkout` on a **test-mode** proxy, pay with `4242 4242 4242 4242`, and watch the balance rise from the webhook (not the redirect).
+5. **Full end-to-end test (test mode, $0).** Do this before launch and after any change to the
+   checkout, webhook or ledger code:
 
-5. Production verification: buy the cheapest pack with a real card, confirm the ledger entry `purchase +100`, then refund it in Stripe (see policy below).
+```bash
+# one time: paste a TEST-mode key into server/credits/.env.qa
+#   Dashboard -> Developers -> API keys -> toggle "Test mode" -> copy sk_test_…
+npm run qa:stripe
+```
+
+`qa:stripe` starts `stripe listen` to capture a real `whsec_`, boots the proxy with it, creates a
+Starter session, prints a `PAY NOW →` URL, and waits. Pay with `4242 4242 4242 4242`, any future
+expiry, any CVC. It then asserts that Stripe echoes our amount/currency/metadata/success and cancel
+URLs, that Stripe's own signed webhook granted exactly 100 credits, that the ledger holds one
+`purchase` row, that the landing page says the credits are in the balance, and that a refund leaves
+the balance untouched. The harness refuses `sk_live_`/`rk_live_` keys outright.
+
+**Post-checkout pages:** the proxy serves `GET /checkout/success?session_id=…` and
+`GET /checkout/cancel` itself (public, HTML, `no-store`, `default-src 'none'` CSP). The success page
+names the pack and credit count and refreshes every 3s until the webhook lands, so a buyer never sees
+a 404 and never has to guess whether the grant arrived. If you set `STRIPE_SUCCESS_URL` /
+`STRIPE_CANCEL_URL` to your store's own pages instead, the proxy serves nothing after payment and the
+store is responsible for confirming the grant.
+
+6. Production verification: buy the cheapest pack with a real card, confirm the ledger entry `purchase +100`, then refund it in Stripe (see policy below).
 
 **Webhook guarantees:** signature verified against the raw body, timestamp tolerance `STRIPE_TOLERANCE_SEC`, deduped by event id, amount checked against the pack price, and one grant per checkout intent. A wrong `STRIPE_WEBHOOK_SECRET` returns `400 Invalid Stripe signature`; a rewritten body (compression middleware) produces the same error.
 
@@ -404,14 +424,21 @@ Run the matrix before every public release, and at least monthly against product
 
 ### 8.0 Automated coverage (no spend, no live Stripe)
 
-Two scripts run the parts of the matrix that do not need a real card or a paid generation:
+Five scripts run the parts of the matrix that do not need a real card or a paid generation:
 
 ```bash
 npm run qa:credits    # real proxy HTTP + SQLite against a local fake Renderful
 npm run qa:catalog    # read-only drift check against the live Renderful catalogue
 npm run qa:blender    # headless add-on + rig + render + Draco GLB (needs Blender, optional)
-npm run qa            # unit tests + credits + catalog (no Blender required)
+npm run qa:stripe     # real Stripe test-mode checkout -> webhook -> grant -> refund
+npm run qa            # unit tests + credits + catalog (no Blender/Stripe required)
 ```
+
+`qa:stripe` is the only one that talks to Stripe. It needs the Stripe CLI, a test-mode secret key in
+`server/credits/.env.qa`, and one manual card entry (`4242 4242 4242 4242`). It proves the pieces the
+offline harness cannot: that Stripe accepts our session parameters, that a real Stripe-signed webhook
+reaches the proxy and grants the pack, that the buyer's landing page confirms it, and that a refund
+does not move the balance. It hard-refuses live keys, so it cannot charge money.
 
 `qa:credits` boots the actual proxy (`createApp`, real DB, pricing, storage, signed URLs, Stripe
 signature verifier) on an ephemeral port with `RENDERFUL_BASE` pointed at a fake upstream whose USD
@@ -439,7 +466,8 @@ What still needs a human before launch:
 
 | Check | Why it cannot be automated here |
 |---|---|
-| Real checkout: pay the cheapest pack with a card, confirm `purchase +100`, refund it | requires live Stripe + a card; `STRIPE_SECRET_KEY` is `sk_live_` on this machine |
+| Real checkout in **test mode**: `npm run qa:stripe`, pay `4242…`, watch `purchase +100`, refund | needs a test-mode key and one card entry; automatable but not unattended |
+| One live purchase with a real card, then refund | proves the live account end to end; costs Stripe's non-refundable fee and leaves an unrevokable grant |
 | Stripe dashboard webhook delivery to the deployed proxy | needs a public HTTPS endpoint registered in Stripe |
 | One paid generation per kind (image/audio/video/3D) | spends real Renderful credit; quote-only checks prove the pricing path |
 | Blender on each supported OS | `qa:blender` automates the render + GLB on one machine; repeat on macOS/Linux |

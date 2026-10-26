@@ -187,3 +187,60 @@ test("CORS headers are emitted when ALLOW_ORIGIN is set", async () => {
     cleanup();
   }
 });
+
+
+test("post-checkout pages are public and reflect the intent", async () => {
+  const { db, base, cleanup } = await start();
+  try {
+    // No license header on purpose: Stripe redirects here without our headers.
+    const who = await (await fetch(`${base}/v1/credits/balance`, { headers: LICENSE })).json();
+    const intent = db.createIntent({
+      accountId: who.accountId,
+      packId: "starter",
+      credits: 100,
+      priceCents: 700
+    });
+    db.attachSession(intent.id, "cs_test_qa_session");
+
+    const pending = await fetch(`${base}/checkout/success?session_id=cs_test_qa_session`);
+    assert.equal(pending.status, 200);
+    assert.match(pending.headers.get("content-type"), /text\/html/);
+    assert.match(pending.headers.get("content-security-policy"), /default-src 'none'/);
+    const pendingHtml = await pending.text();
+    assert.match(pendingHtml, /Payment received/);
+    assert.match(pendingHtml, /Starter/);
+    assert.match(pendingHtml, /100 credits/);
+    assert.match(pendingHtml, /refresh/);
+    assert.doesNotMatch(pendingHtml, /cs_test_qa_session/);
+
+    db.markIntentPaid(intent.id);
+    const paidHtml = await (await fetch(`${base}/checkout/success?session_id=cs_test_qa_session`)).text();
+    assert.match(paidHtml, /in the balance now/);
+    assert.doesNotMatch(paidHtml, /http-equiv="refresh"/);
+
+    const cancelled = await fetch(`${base}/checkout/cancel`);
+    assert.equal(cancelled.status, 200);
+    const cancelledHtml = await cancelled.text();
+    assert.match(cancelledHtml, /Checkout cancelled/);
+    assert.match(cancelledHtml, /Nothing was charged/);
+
+    // An unknown or missing session must not leak whether an intent exists.
+    for (const query of ["?session_id=cs_does_not_exist", ""]) {
+      const res = await fetch(`${base}/checkout/success${query}`);
+      assert.equal(res.status, 200);
+      const html = await res.text();
+      assert.match(html, /Payment received/);
+      assert.doesNotMatch(html, /Starter/);
+    }
+
+    // The session id is the only credential, so it must not be reflected as markup.
+    const intent2 = db.createIntent({ accountId: who.accountId, packId: "agency", credits: 3000, priceCents: 18900 });
+    db.attachSession(intent2.id, '"><script>alert(1)</script>');
+    const xss = await (
+      await fetch(`${base}/checkout/success?session_id=${encodeURIComponent('"><script>alert(1)</script>')}`)
+    ).text();
+    assert.doesNotMatch(xss, /<script>alert\(1\)<\/script>/);
+  } finally {
+    await cleanup();
+  }
+});

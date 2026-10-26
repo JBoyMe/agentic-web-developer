@@ -429,6 +429,25 @@ export function createService({ config, db, pricing, renderful, storage, signedU
   }
 
   /**
+   * Read-only status for the post-checkout landing page. The Stripe session id is
+   * the only credential needed: it is unguessable and reveals no account details,
+   * just the pack the visitor just bought and whether the webhook has landed.
+   */
+  function checkoutStatus(sessionId) {
+    const intent = db.getIntentBySession(sessionId);
+    if (!intent) return null;
+    const pack = packs.get(intent.pack_id);
+    return {
+      status: intent.status,
+      packId: intent.pack_id,
+      packName: pack?.name ?? intent.pack_id,
+      credits: intent.credits,
+      priceCents: intent.price_cents,
+      paidAt: intent.paid_at ?? null
+    };
+  }
+
+  /**
    * Applies a verified Stripe event. Idempotent by event id and by intent id,
    * so duplicate webhook deliveries cannot double-credit an account.
    */
@@ -529,6 +548,7 @@ export function createService({ config, db, pricing, renderful, storage, signedU
     pollBatch,
     refundJob,
     createCheckout,
+    checkoutStatus,
     handleStripeEvent,
     adminGrant,
     models,

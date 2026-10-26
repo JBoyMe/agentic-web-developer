@@ -77,6 +77,92 @@ async function readJson(req, maxBytes) {
   }
 }
 
+const STORE_URL = "https://skills.animotion.click";
+
+const escapeHtml = (value) =>
+  String(value).replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
+  );
+
+/**
+ * Post-checkout landing page. Stripe redirects the buyer here, so it has to be
+ * a real page: without it every successful payment ends on a 404, which is both
+ * alarming and the moment the buyer is deciding whether the credits arrived.
+ */
+function checkoutPage({ cancelled = false, sessionId = "", status = null }) {
+  const money = (cents) => `$${(Number(cents) / 100).toFixed(2).replace(/\.00$/, "")}`;
+  let heading = "Checkout cancelled";
+  let body = "Nothing was charged. Your balance is unchanged.";
+  let detail = "";
+  let refresh = "";
+  let tone = "warn";
+
+  if (!cancelled) {
+    tone = "ok";
+    heading = "Payment received";
+    if (status) {
+      detail = `${escapeHtml(status.packName)} · ${status.credits.toLocaleString("en-US")} credits · ${money(
+        status.priceCents
+      )}`;
+      body =
+        status.status === "paid"
+          ? "Your credits are in the balance now — you can close this tab and go back to your session."
+          : "Stripe has taken the payment; the webhook is applying your credits now. This page refreshes itself.";
+      if (status.status !== "paid") refresh = '<meta http-equiv="refresh" content="3">';
+    } else {
+      body =
+        "Payment received. If the credits are not in your balance within a minute, send this session id to support.";
+      detail = sessionId ? `Session ${escapeHtml(sessionId)}` : "";
+    }
+  } else if (sessionId) {
+    detail = `Session ${escapeHtml(sessionId)}`;
+  }
+
+  const accent = tone === "ok" ? "#a8e05f" : "#e0b95f";
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+${refresh}
+<title>${escapeHtml(heading)} · Asset credits</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
+    background: #0d0d11; color: #ececf3;
+    font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { width: 100%; max-width: 430px; text-align: center; }
+  .mark { width: 52px; height: 52px; margin: 0 auto 20px; border-radius: 14px;
+          border: 1px solid ${accent}55; background: ${accent}14; display: grid; place-items: center; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: ${accent}; }
+  h1 { font-size: 24px; line-height: 1.25; margin: 0 0 10px; letter-spacing: -0.02em; }
+  p { margin: 0 0 14px; color: #b9b9c6; }
+  .detail { display: inline-block; margin: 4px 0 18px; padding: 7px 13px; border-radius: 999px;
+            background: #ffffff0a; border: 1px solid #ffffff14; color: #d8d8e4; font-size: 13px; }
+  a { color: ${accent}; text-decoration: none; font-weight: 600; }
+  a:hover { text-decoration: underline; }
+  .fine { margin-top: 22px; font-size: 12px; color: #6f6f80; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark"><div class="dot"></div></div>
+  <h1>${escapeHtml(heading)}</h1>
+  <p>${body}</p>
+  ${detail ? `<div class="detail">${detail}</div><br>` : ""}
+  <a href="${STORE_URL}">Back to Animotion</a>
+  <div class="fine">Asset credits are prepaid and separate from your Pro, Studio or Template plan.</div>
+</main>
+</body>
+</html>`;
+}
+
 export function createApp(overrides = {}) {
   const config = overrides.config ?? loadConfig();
   const log = overrides.log ?? createLogger(config.logLevel);
@@ -123,6 +209,18 @@ export function createApp(overrides = {}) {
       ...extraHeaders
     });
     res.end(payload);
+  }
+
+  function sendHtml(res, status, html) {
+    res.writeHead(status, {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Length": Buffer.byteLength(html),
+      "Cache-Control": "no-store",
+      "Referrer-Policy": "no-referrer",
+      "X-Content-Type-Options": "nosniff",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src data:"
+    });
+    res.end(html);
   }
 
   function sendError(res, err) {
@@ -239,6 +337,22 @@ export function createApp(overrides = {}) {
           checkout: Boolean(config.stripe.secretKey) || Boolean(config.checkoutFallbackUrl),
           packs: config.packs.length
         });
+      }
+
+      // Stripe redirects the buyer here after payment. Public on purpose: the
+      // session id is the only thing in the URL and it reveals no account data.
+      if (method === "GET" && (pathname === "/checkout/success" || pathname === "/checkout/cancel")) {
+        const cancelled = pathname === "/checkout/cancel";
+        const sessionId = url.searchParams.get("session_id") ?? "";
+        let status = null;
+        if (!cancelled && sessionId) {
+          try {
+            status = service.checkoutStatus(sessionId);
+          } catch {
+            status = null;
+          }
+        }
+        return sendHtml(res, 200, checkoutPage({ cancelled, sessionId, status }));
       }
 
       if (method === "GET" && pathname === "/v1/credits/packs") {

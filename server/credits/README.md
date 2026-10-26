@@ -197,6 +197,20 @@ to `url`; credits are applied by webhook, not by the redirect.
 Without Stripe but with `CHECKOUT_FALLBACK_URL`: an `external` intent and the fallback link, with
 `creditedAutomatically: false` — an operator must credit the account manually.
 
+### `GET /checkout/success?session_id=…` · `GET /checkout/cancel`
+
+No auth, HTML. These are the pages Stripe redirects the buyer to, so they cannot require a license
+key — the unguessable session id is the only credential in the URL. The success page reports the
+pack, credit count and price, and says whether the webhook has landed yet. While the intent is still
+`created` it refreshes itself every 3s, so the buyer watches the balance appear instead of guessing.
+An unknown or missing session renders the generic "payment received" copy and never reveals whether
+an intent exists. Responses are `no-store` with `default-src 'none'` CSP and escaped output.
+
+Both URLs are configured by `STRIPE_SUCCESS_URL` / `STRIPE_CANCEL_URL`, defaulting to
+`<PUBLIC_BASE_URL>/checkout/{success,cancel}`. If you host the store elsewhere, point them at that
+store's pages instead — but then this proxy serves nothing after payment, so the buyer relies on the
+store to confirm the grant.
+
 ### `POST /v1/stripe/webhook`
 
 Raw-body Stripe webhook. Verifies `Stripe-Signature` (HMAC-SHA256, timestamp tolerance), dedupes by

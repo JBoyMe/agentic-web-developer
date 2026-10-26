@@ -127,6 +127,7 @@ export function createDb(dbPath) {
        VALUES (?, ?, ?, ?, ?, 'created', NULL, ?, NULL)`
     ),
     getIntent: db.prepare("SELECT * FROM checkout_intents WHERE id = ?"),
+    getIntentBySession: db.prepare("SELECT * FROM checkout_intents WHERE session_id = ?"),
     setIntentSession: db.prepare("UPDATE checkout_intents SET session_id = ? WHERE id = ?"),
     markIntentPaid: db.prepare("UPDATE checkout_intents SET status = 'paid', paid_at = ? WHERE id = ? AND status != 'paid'"),
     webhookSeen: db.prepare("SELECT id FROM webhook_events WHERE id = ?"),
@@ -305,6 +306,12 @@ export function createDb(dbPath) {
     return stmts.getIntent.get(intentId) || null;
   }
 
+  /** Used by the post-checkout landing page; Stripe redirects with the session id. */
+  function getIntentBySession(sessionId) {
+    if (!sessionId) return null;
+    return stmts.getIntentBySession.get(String(sessionId)) || null;
+  }
+
   function attachSession(intentId, sessionId) {
     stmts.setIntentSession.run(sessionId, intentId);
   }
@@ -359,6 +366,7 @@ export function createDb(dbPath) {
     recentJobs,
     createIntent,
     getIntent,
+    getIntentBySession,
     attachSession,
     markIntentPaid,
     webhookSeen,
