@@ -275,6 +275,24 @@ Health must report `ok: true`, `renderful: true`, `stripe: true`, `stripeWebhook
 
 ### 5.4 First live smoke test
 
+Verify the deployment before you announce it. Two commands, no spend:
+
+```bash
+# 1. Is the .env fit to deploy? (catches placeholders, test keys, wrong hosts)
+npm run check:deploy -- --env=server/credits/.env
+
+# 2. Is the running deployment actually the code you think it is?
+npm run check:deploy -- --url=https://credits.your-host
+```
+
+The live mode asserts `/health`, pack prices, the licence gate (401), the admin gate (401), both
+post-checkout pages (HTML + `no-store`), the webhook route (400 on a forged signature — not 404 and
+not 503), signed-file rejection (403), and that an unknown path returns the proxy's JSON 404 rather
+than a host page. Run it after every deploy: the 404 it checks for is exactly the bug that shipped
+once already, and it is invisible until a buyer has paid.
+
+Then exercise the API with a real licence key:
+
 ```bash
 BASE=https://credits.your-host
 KEY=YOUR_TEST_LICENSE_KEY
