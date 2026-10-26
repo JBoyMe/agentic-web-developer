@@ -280,7 +280,9 @@ check("credits proxy files are present", () => {
   const required = [
     "server/credits/package.json",
     "server/credits/.env.example",
-    "server/credits/Dockerfile",
+    "Dockerfile",
+    ".dockerignore",
+    "render.yaml",
     "server/credits/docker-compose.yml",
     "server/credits/schema.sql",
     "server/credits/README.md",

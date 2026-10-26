@@ -6,6 +6,8 @@
 !.gitignore
 !.gitattributes
 !.npmignore
+!/Dockerfile
+!/.dockerignore
 !/render.yaml
 !/package.json
 !/README.md

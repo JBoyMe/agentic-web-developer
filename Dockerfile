@@ -1,3 +1,12 @@
+# Canonical image for the credits proxy.
+#
+# This file lives at the repository root on purpose. Render builds with the
+# repo root as the Docker context and reads ./Dockerfile by default, so a root
+# Dockerfile works whether the service is created from render.yaml or by hand
+# as a "Docker" web service with no root-directory setting.
+#
+# The app itself still lives in server/credits; only the COPY paths differ from
+# a build started inside that folder.
 FROM node:24-alpine
 
 # su-exec lets the entrypoint hand a root-owned volume to the app user, which
@@ -13,10 +22,10 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 
-COPY package.json ./
-COPY src ./src
-COPY schema.sql ./
-COPY deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY server/credits/package.json ./
+COPY server/credits/src ./src
+COPY server/credits/schema.sql ./
+COPY server/credits/deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && mkdir -p /data
 
 VOLUME ["/data"]

@@ -13,8 +13,11 @@ services:
     runtime: docker
     plan: starter
     region: frankfurt
-    dockerContext: ./server/credits
-    dockerfilePath: ./server/credits/Dockerfile
+    # Relative to the repository root, which is also the default context. The
+    # Dockerfile at the root is the canonical one, so this works even if Render
+    # ignores the blueprint and builds with its defaults (which is exactly what
+    # produced "open Dockerfile: no such file or directory" on the first try).
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV

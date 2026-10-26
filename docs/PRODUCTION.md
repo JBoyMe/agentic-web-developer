@@ -228,9 +228,10 @@ credits.your-host {
 
 ### 5.1a Render + Cloudflare (the deployed path)
 
-`render.yaml` at the repo root describes the whole service: Docker build from
-`server/credits`, a 1 GB disk at `/data`, `/health` as the check, and every non-secret env var.
-Three secrets are marked `sync: false`, so Render prompts for them and they never enter Git.
+`render.yaml` at the repo root describes the whole service: the image built from
+the `Dockerfile` at the repo root, a 1 GB disk at `/data`, `/health` as the check, and every
+non-secret env var. Three secrets are marked `sync: false`, so Render prompts for them and they
+never enter Git.
 
 1. Render → **New → Blueprint** → connect this repo → it detects `render.yaml`.
 2. Fill the three prompted secrets:
@@ -255,6 +256,11 @@ npm run check:deploy -- --url=https://credits.animotion.click
 
 **Render specifics worth knowing:**
 
+- The image is built from the **root `Dockerfile`**, because Render uses the repo root as the build
+  context and defaults to `./Dockerfile`. Do not move it back under `server/credits`: a blueprint
+  `dockerContext`/`dockerfilePath` pair is not reliably honoured, and the first deploy died with
+  `failed to read dockerfile: open Dockerfile: no such file or directory`. A manual **Docker** web
+  service with no root-directory setting now builds correctly too.
 - The disk is mounted **root-owned** while the app runs as `node`, so the image starts as root only
   long enough for `deploy/entrypoint.sh` to chown the mount, then drops privileges. Without that the
   service dies at boot with `EACCES` on `credits.sqlite`.

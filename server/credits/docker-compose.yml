@@ -1,6 +1,10 @@
 services:
   credits:
-    build: .
+    build:
+      # One image definition for Render and Compose alike: the Dockerfile at the
+      # repo root, with the repo root as context.
+      context: ../..
+      dockerfile: Dockerfile
     container_name: awd-credits
     restart: unless-stopped
     env_file: .env
