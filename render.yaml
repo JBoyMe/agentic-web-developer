@@ -1,0 +1,72 @@
+# Render blueprint for the credits proxy.
+#
+# One web service + one disk. The disk is not optional: DATA_DIR holds the
+# credit ledger (credits.sqlite), the generated outputs and the model cache.
+# Without it every deploy resets customer balances.
+#
+# A disk requires a paid instance type (starter, $7/mo) — Render will not attach
+# one to a free service. Keep numInstances at 1: SQLite is a single-writer file
+# and two containers over one volume would corrupt the ledger.
+services:
+  - type: web
+    name: awd-credits
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerContext: ./server/credits
+    dockerfilePath: ./server/credits/Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATA_DIR
+        value: /data
+      - key: PUBLIC_BASE_URL
+        value: https://credits.animotion.click
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ALLOW_ORIGIN
+        value: https://skills.animotion.click
+      - key: LICENSE_VALIDATE_URL
+        value: https://skills.animotion.click/api/license/validate
+      - key: LICENSE_SKILL
+        value: agentic-web-developer
+      - key: LICENSE_PLAN
+        value: pro
+      - key: ALLOW_UNVERIFIED_LICENSES
+        value: "false"
+      - key: RATE_LIMIT_PER_MIN
+        value: "60"
+      - key: CREDIT_USD
+        value: "0.05"
+      - key: PRICING_BASIS
+        value: max
+      - key: MODELS_TTL_MS
+        value: "900000"
+      - key: STRIPE_SUCCESS_URL
+        value: https://credits.animotion.click/checkout/success?session_id={CHECKOUT_SESSION_ID}
+      - key: STRIPE_CANCEL_URL
+        value: https://credits.animotion.click/checkout/cancel
+
+      # ── Secrets: set these in the Render dashboard, never in this file ──
+      # sync: false makes Render prompt for them and keeps them out of Git.
+      - key: RENDERFUL_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+      # Generated once by Render and then stable — a rotated signing secret
+      # invalidates every signed output URL in flight.
+      - key: FILE_SIGNING_SECRET
+        generateValue: true
+      - key: ADMIN_SECRET
+        generateValue: true
+
+    disk:
+      name: credits-data
+      mountPath: /data
+      sizeGB: 1

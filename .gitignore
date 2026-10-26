@@ -5,6 +5,7 @@
 *
 !.gitignore
 !.npmignore
+!/render.yaml
 !/package.json
 !/README.md
 !/docs/
