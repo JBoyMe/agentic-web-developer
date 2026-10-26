@@ -150,6 +150,29 @@ Verify the live upload through the installer:
 node scripts/verify-release.js --source=https://your-cdn/skill-2.3.1.tar.gz
 ```
 
+### 3.6 Deploy the same tree to the skills server (Google AI Studio + gated fetch)
+
+The CDN payload and the skills-server payload are **two different consumers** of the same tree:
+
+| Consumer | Reads | Updated by |
+|---|---|---|
+| Local agents via `npx agentic-web-developer install` | `awd.source` tarball | §3.4–3.5 |
+| Google AI Studio + browser parity fetches | `https://skills.animotion.click/api/skills/agentic-web-developer/<path>` | **this step** |
+| `npx` docs/commands | npm tarball | §4 |
+
+`npm publish` does **not** update the skills server. Until the tree is deployed there, AI Studio (and any URL-Context-only client) keeps serving the previous release even when npm is current.
+
+- [ ] Deploy the release `skill/` tree (same files that went into `skilltar.gz`) through the skills server's existing upload/deploy path.
+- [ ] `references/ai-studio-system-prompt.md` on the server is the **new** router — paste-safe, with no credentials in it.
+- [ ] Fetch through the gated route with a real key (GET), e.g.
+      `curl -s "https://skills.animotion.click/api/skills/agentic-web-developer/references/ai-studio-system-prompt.md?licenseKey=$KEY" | grep -c "ASSET BUILDER"`
+      → `1` on 2.3.x.
+- [ ] `SKILL.md` on the server names the Asset Builder, credits and Blender references (same assertions as `npm run release:verify`).
+- [ ] No stray `.env`, `dist/`, `server/`, or credential file is inside the deployed tree.
+- [ ] Re-paste the router into AI Studio **System instructions** in a *new* chat and run the freshness check in `skill/references/google-ai-studio.md` → *Updates*.
+
+> Admin secret hygiene: the router is published. It must never contain `AGENTIC_ADMIN_EMAIL`/`AGENTIC_ADMIN_SECRET` values or a real `sec_live_` key. `npm run release:check` fails on those patterns.
+
 ---
 
 ## 4. npm publish
@@ -541,6 +564,8 @@ Copy this into the release issue and tick it.
 
 - [ ] New payload URL uploaded, SHA matches, `verify-release --source=<url>` green
 - [ ] `awd.source` updated and committed
+- [ ] Skills-server tree deployed (§3.6); gated router fetch contains `ASSET BUILDER`
+- [ ] AI Studio router re-pasted in a new chat; freshness check passes
 - [ ] `npm publish` done; `npm view … version` matches
 - [ ] Clean-HOME `npx … install` smoke test (skill + commands + credits config)
 - [ ] Git tag + GitHub release with the payload SHA and the changelog

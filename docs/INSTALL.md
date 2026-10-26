@@ -142,6 +142,10 @@ AI Studio has no file system to install into — the skill runs there via paste 
 
 Step-by-step, GET license URL, reference URL patterns and session hygiene: the skill's `references/google-ai-studio.md`.
 
+**Updates work differently here.** AI Studio is not an installer target: `npm publish` and `awd.source` update local agents only. The browser model reads whatever is deployed under `https://skills.animotion.click/api/skills/agentic-web-developer/…`, so a release is live there only after that payload is deployed **and** the router is re-pasted. To check freshness, ask the model to fetch `references/ai-studio-system-prompt.md` and quote the `## ASSET BUILDER` heading — absent means the server still serves an older payload. Deploy procedure: [PRODUCTION.md § 3](./PRODUCTION.md).
+
+**Asset generation in AI Studio** is intentionally limited: no shell, no POST, no headers and no filesystem, so the managed credits proxy, direct Renderful and local Blender cannot run. Use user files, AI Studio's own image/video tools (as the "my file" route), hand-built SVG, keep-existing or skip — and hand any genuinely cloud/Blender slot to a local agent with the exact prompt and credit range. Full limits and fallback ladder: the skill's `references/google-ai-studio.md` → *Asset Builder in AI Studio*.
+
 ## Asset generation setup (optional)
 
 The skill works without any of this — the Asset Builder falls back to your own files, keep-existing, SVG and local Blender. Cloud generation needs **one** of two transports:

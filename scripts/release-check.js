@@ -408,18 +408,32 @@ check("no real secrets are checked in", () => {
     ...skillFiles.map((f) => `skill/${f}`)
   ].filter((f) => /\.(md|js|mjs|json|sql|yml|example|py)$/.test(f));
 
+  const isPlaceholder = (v) =>
+    !v ||
+    /^(?:your|you@|admin@|user@|example\.|changeme|change-me|placeholder|xxx+|secret|<|\$\{|\$[A-Z_]|\.\.\.|…)/i.test(v) ||
+    /example\.(?:com|org)|yourdomain|your-host|your-key|yourserver/i.test(v) ||
+    /secret|placeholder|dummy|mock|sample|test|fake/i.test(v) ||
+    /^(?:env\.|process\.|config\.|os\.|Deno\.|import\.meta)/.test(v);
+
   const patterns = [
-    [/\bsk_live_[A-Za-z0-9]{10,}/, "Stripe live key"],
-    [/\bwhsec_[A-Za-z0-9]{20,}/, "Stripe webhook secret"],
-    [/\brf_[A-Za-z0-9]{24,}/, "Renderful key"],
-    [/\bAKIA[0-9A-Z]{16}\b/, "AWS access key"],
-    [/-----BEGIN (RSA |EC )?PRIVATE KEY-----/, "private key"]
+    [/\bsk_live_[A-Za-z0-9]{10,}/g, "Stripe live key"],
+    [/\bwhsec_[A-Za-z0-9]{20,}/g, "Stripe webhook secret"],
+    [/\brf_[A-Za-z0-9]{24,}/g, "Renderful key"],
+    [/\bAKIA[0-9A-Z]{16}\b/g, "AWS access key"],
+    [/\bsec_live_[A-Za-z0-9]{16,}/g, "Animotion license key"],
+    [/(?:AGENTIC_ADMIN_EMAIL|adminEmail)[ \t]*[:=][ \t]*["']?([^\s"'`<>=]+)/g, "admin email value", (m) => !isPlaceholder(m[1])],
+    [/(?:AGENTIC_ADMIN_SECRET|ADMIN_SECRET|adminSecret)[ \t]*[:=][ \t]*["']?([^\s"'`<>=]{8,})/g, "admin secret value", (m) => !isPlaceholder(m[1])],
+    [/-----BEGIN (RSA |EC )?PRIVATE KEY-----/g, "private key"]
   ];
   const hits = [];
   for (const rel of files) {
     const text = read(rel);
-    for (const [re, label] of patterns) {
-      if (re.test(text)) hits.push(`${rel} (${label})`);
+    for (const [re, label, allow] of patterns) {
+      for (const m of text.matchAll(re)) {
+        if (allow && !allow(m)) continue;
+        hits.push(`${rel} (${label})`);
+        break;
+      }
     }
   }
   if (hits.length) fail(hits.join("; "));
