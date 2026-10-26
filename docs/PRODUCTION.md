@@ -226,6 +226,49 @@ credits.your-host {
 }
 ```
 
+### 5.1a Render + Cloudflare (the deployed path)
+
+`render.yaml` at the repo root describes the whole service: Docker build from
+`server/credits`, a 1 GB disk at `/data`, `/health` as the check, and every non-secret env var.
+Three secrets are marked `sync: false`, so Render prompts for them and they never enter Git.
+
+1. Render → **New → Blueprint** → connect this repo → it detects `render.yaml`.
+2. Fill the three prompted secrets:
+   - `RENDERFUL_API_KEY` — the live key (server-side only, never in the skill)
+   - `STRIPE_SECRET_KEY` — the **live** key from the account you already use
+   - `STRIPE_WEBHOOK_SECRET` — leave `whsec_pending` for now; step 5 sets the real one
+3. Deploy. The plan **must** be `starter` or higher: Render will not attach a disk to a free
+   service, and without the disk the ledger resets on every deploy. Keep instances at **1** —
+   SQLite is single-writer and two containers over one volume corrupt it.
+4. Cloudflare DNS → `CNAME credits → awd-credits.onrender.com`, **Proxy status: DNS only (grey
+   cloud)** for the first deploy, so Render can issue its certificate. Once `/health` answers over
+   HTTPS, you can switch to Proxied (orange) with SSL/TLS mode **Full (strict)**.
+5. Stripe → Developers → Webhooks → **Add endpoint**
+   `https://credits.animotion.click/v1/stripe/webhook`, events
+   `checkout.session.completed` and `checkout.session.async_payment_succeeded`.
+   Copy that endpoint's `whsec_…` into Render as `STRIPE_WEBHOOK_SECRET` and let it redeploy.
+6. Verify from this repo, before telling anyone:
+
+```bash
+npm run check:deploy -- --url=https://credits.animotion.click
+```
+
+**Render specifics worth knowing:**
+
+- The disk is mounted **root-owned** while the app runs as `node`, so the image starts as root only
+  long enough for `deploy/entrypoint.sh` to chown the mount, then drops privileges. Without that the
+  service dies at boot with `EACCES` on `credits.sqlite`.
+- `PORT` is injected by Render at runtime. The image therefore does not hard-code it, and its
+  HEALTHCHECK reads `${PORT:-8787}`.
+- A disk prevents zero-downtime deploys and horizontal scaling — both are correct here; a deploy is
+  a short restart.
+- Bandwidth is metered (100 GB/mo included, then $0.10/GB). Outputs are up to 200 MB each, so watch
+  this line if buyers generate long video. Signed URLs expire, which caps sharing but not re-downloads.
+- If Stripe deliveries start failing with a Cloudflare `403`, disable **Bot Fight Mode** for the zone;
+  Stripe's servers must reach the webhook path un-challenged.
+- `TRUST_PROXY=true` is correct on Render: both Render's edge and Cloudflare overwrite
+  `X-Forwarded-For`, so the rate limiter sees the real client IP.
+
 ### 5.2 Environment
 
 ```bash

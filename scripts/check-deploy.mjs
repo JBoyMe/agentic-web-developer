@@ -163,7 +163,7 @@ function checkLocal(env) {
   }
 
   if (get("TRUST_PROXY") === "true") {
-    warn("TRUST_PROXY", "true — only correct behind a proxy that overwrites X-Forwarded-For");
+    ok("TRUST_PROXY", "true — correct behind Render/Cloudflare; wrong on a direct-IP host");
   }
 
   const dataDir = get("DATA_DIR");
