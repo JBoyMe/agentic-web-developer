@@ -200,7 +200,7 @@ npx animotion-skills install --detect
 
 ## Repository vs npm package vs skill source
 
-- **This Git repository** contains documentation (`README.md`, `docs/`), the installer (`bin/`), the managed-credits proxy (`server/credits/`) and release tooling (`scripts/`) — the `.gitignore` hides the skill source and commands.
+- **This Git repository** is docs-only (`README.md`, `docs/`). The installer (`bin/`), slash commands (`commands/`), managed-credits service (`server/credits/`) and release tooling (`scripts/`) stay on the release machine — they ship through npm and the private skill tarball, never through Git.
 - **The npm package** contains the **installer** (`bin/install.js`), the slash commands (`commands/`) and the docs — never `skill/` and never the credits proxy. Anything in a published tarball is publicly downloadable forever, so the private source stays out of it.
 - **The skill source** lives wherever you say: [Skill source](#skill-source) (`--source`, `AWD_SOURCE`, or the author's `awd.source`).
 

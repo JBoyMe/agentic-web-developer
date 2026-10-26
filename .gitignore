@@ -1,32 +1,14 @@
-# Git: docs, installer, commands, the managed-credits proxy and release tooling
-# are tracked. The skill source (skill/) and the built payload (skilltar.gz)
-# ship via the private tarball URL in package.json -> awd.source, never through
-# this repository. package.json ships via npm.
+# Docs-only public repository.
+#
+# Only the README and docs/ are published to GitHub. The installer, slash
+# commands, managed-credits service, release tooling and build files stay on the
+# release machine and reach users through npm + the private skill tarball.
+#
+# Publish with `npm publish` from the working tree: npm reads `files` from
+# package.json, not Git, so the code does not need to be committed.
 *
 !.gitignore
 !.gitattributes
-!.npmignore
-!/Dockerfile
-!/.dockerignore
-!/render.yaml
-!/package.json
 !/README.md
 !/docs/
 !/docs/**
-!/bin/
-!/bin/**
-!/commands/
-!/commands/**
-!/server/
-!/server/**
-!/scripts/
-!/scripts/**
-# Never commit runtime state or real secrets, even though server/ is tracked.
-server/credits/.env
-server/credits/.env.*
-!server/credits/.env.example
-server/credits/data/
-server/credits/*.sqlite*
-server/credits/*.db
-# Blender smoke output (npm run qa:blender -- --keep)
-.blender-smoke/

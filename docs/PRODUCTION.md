@@ -4,6 +4,8 @@ Everything needed to ship **agentic-web-developer 2.3.x** and operate it afterwa
 
 Read this top to bottom the first time. After that, use the [release checklist](#release-checklist) at the end.
 
+> **Maintainer runbook.** The public Git repository is docs-only. Paths such as `bin/`, `commands/`, `server/credits/`, `scripts/`, `package.json` and `render.yaml` exist in the local working tree and are ignored by Git; they ship through npm and the private tarball, not GitHub.
+
 ---
 
 ## 0. What ships where
