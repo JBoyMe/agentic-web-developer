@@ -49,16 +49,19 @@ Alongside the skill, the installer writes the command files to the agent's globa
 | opencode | `~/.config/opencode/command/` (or `~/.opencode/command/`) |
 | Claude Code | `~/.claude/commands/` |
 
-Commands installed (23 files — 12 sources, `awd-*` aliases derived automatically):
+Commands installed (31 files — 16 sources, `awd-*` aliases derived automatically):
 
 | Command | Does |
 |---|---|
 | `/agentic-web-developer` | Router — license gate, then Strategy (or the department named in the arguments) |
-| `/agentic-web-developer-strategy` … `-growth` | Enter one of the 10 departments by full name |
-| `/awd-strategy` … `/awd-growth` | The same 10 departments, short alias |
+| `/agentic-web-developer-strategy` … `-growth` | Enter one of the 11 departments by full name |
+| `/awd-strategy` … `/awd-growth` | The same 11 departments, short alias |
 | `/agentic-web-developer-taste` · `/awd-taste` | Taste training — build or refine the taste profile (works with or without a project; not a department) |
+| `/agentic-web-developer-assets` · `/awd-assets` | **Asset Builder** — audio, video and 3D in any mode: inventory → route → generate (Renderful · local Blender) → ingest/QA → Animotion control brief. Credit gate before every batch; credits sold separately |
+| `/agentic-web-developer-mode-e` · `/awd-mode-e` | **Mode E** — save the open project as a template, or list the template library (Template plan, $25/month) |
+| `/agentic-web-developer-mode-e-<template-name>` · `/awd-mode-e-<template-name>` | **Mode E** — build a new project from a saved template (suffix form handled by the skill; no per-template file needed) |
 
-Departments: `strategy` · `research` · `content` · `design` · `frontend` · `backend` · `motion` · `qa` · `deploy` · `growth` — plus the standalone taste trainer (`taste`). Skip with `--no-commands`; refresh with `--force`. Agents other than opencode/claude still get the full skill — they just enter departments by asking ("use the Design department") instead of a slash command.
+Departments: `strategy` · `research` · `content` · `design` · `frontend` · `backend` · `motion` · `qa` · `deploy` · `growth` — plus the standalone taste trainer (`taste`), the Asset Builder (`assets`) and Mode E (`mode-e`). Skip with `--no-commands`; refresh with `--force`. Agents other than opencode/claude still get the full skill — they just enter departments by asking ("use the Design department") instead of a slash command.
 
 ## Skill source
 

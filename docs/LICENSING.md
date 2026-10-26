@@ -1,18 +1,39 @@
 # Licensing — paying for Pro and unlocking the skill
 
-The agentic-web-developer skill is licensed: it needs an active **Pro plan ($7/month)** Animotion key, or Animotion **admin credentials**, verified **once per session** (cached 7 days) before any pipeline work. This guide covers paying for Pro, installing the skill files with a key or admin credentials, and wiring the credentials up.
+The agentic-web-developer skill is licensed: it needs an active **Pro plan ($7/month)** Animotion key, or Animotion **admin credentials**, verified **once per session** (cached 7 days) before any pipeline work. **Mode E (template reuse — `/awd-mode-e*`) needs the Template plan ($25/month)** instead. The license buys the **skill**; **asset generation is paid separately with prepaid credits** (no plan includes any). This guide covers paying for a plan, buying credits, installing the skill files with a key or admin credentials, and wiring the credentials up.
 
 ## How to pay for Pro
 
-[![Get Pro — $7/mo](https://img.shields.io/badge/Get_Pro-%247%2Fmonth-38ED26)](https://skills.animotion.click/checkout?plan=pro) [![Get Studio — $15/mo](https://img.shields.io/badge/Get_Studio-%2415%2Fmonth-222222)](https://skills.animotion.click/checkout?plan=studio)
+[![Get Pro — $7/mo](https://img.shields.io/badge/Get_Pro-%247%2Fmonth-38ED26)](https://skills.animotion.click/checkout?plan=pro) [![Get Studio — $15/mo](https://img.shields.io/badge/Get_Studio-%2415%2Fmonth-222222)](https://skills.animotion.click/checkout?plan=studio) [![Get Template — $25/mo](https://img.shields.io/badge/Get_Template-%2425%2Fmonth-6C2BD9)](https://skills.animotion.click/checkout?plan=template)
 
-1. **Click a Get Pro button** — opens [`skills.animotion.click/checkout?plan=pro`](https://skills.animotion.click/checkout?plan=pro) with the **Pro** plan preselected ($7/month). Studio ($15/month) also unlocks this skill *and* the AnimotionJS agentic animation skill the pipeline hands off to at Stage 8 — usually the better deal if you'll ship sites.
+1. **Click a Get Pro button** — opens [`skills.animotion.click/checkout?plan=pro`](https://skills.animotion.click/checkout?plan=pro) with the **Pro** plan preselected ($7/month). Studio ($15/month) also unlocks this skill *and* the AnimotionJS agentic animation skill the pipeline hands off to at Stage 8 — usually the better deal if you'll ship sites. **Template ($25/month)** unlocks **Mode E** (saving projects as templates and building from them) *and* everything Pro/Studio do — one standalone key, no need to also buy Pro or Studio. **The Asset Builder is not plan-gated** — every mode has it; generation is paid with separately purchased credits (below).
 2. **Enter your email** — the license key is tied to this address.
 3. **Continue to Payment** — you are redirected to Stripe's hosted checkout (card payment; Stripe handles everything).
 4. **Confirm the subscription** — $7/month, renews monthly, cancel anytime from the Stripe invoice email.
 5. **Copy your license key** — the confirmation page shows it immediately (`sec_live_…`).
 
 > **Admin credentials are not self-serve.** `--admin-email`/`--admin-secret` and `AGENTIC_ADMIN_*` are a staff bypass for whitelisted emails — everyone else pays with a Pro key from the flow above.
+
+## Generation credits — sold separately from every plan
+
+The license unlocks the **skill**. It does **not** include asset generation: Pro, Studio and Template all ship with **zero credits**.
+
+The **Asset Builder** (available in every mode via `/awd-assets`, Design 4.3, Mode E E.3) spends from a prepaid credit balance:
+
+- **1 credit = $0.05 of Renderful spend.** The agent shows the exact credit cost before generating and deducts only after a successful download; failed generations are refunded automatically.
+- **Local headless Blender renders cost 0 credits** — block-animation video and full 3D builds on your own machine. Only the cloud AI passes and cloud meshes spend credits.
+- **Prepaid packs, one-time, no auto-renew, no expiry:**
+
+| Pack | Credits | Price | Per credit |
+|---|---|---|---|
+| Starter | 100 | **$7** | $0.070 |
+| Builder | 300 | **$21** | $0.070 |
+| Production | 1,000 | **$65** | $0.065 |
+| Agency | 3,000 | **$189** | $0.063 |
+
+Buy at [`skills.animotion.click/credits`](https://skills.animotion.click/credits). The balance lives at `~/.agentic-web-developer/credits.json` (override for CI with `AWD_CREDIT_BALANCE`). Per-model prices: `skill/references/asset-credits.md`.
+
+> **Plans and credits never mix.** A marketing line that says a plan "includes credits" is wrong. A valid license with an empty balance can still run every department, Mode E, the fallback ladder (user file · keep existing · SVG · skip) — it just cannot generate until credits are bought.
 
 ## Install the skill files (license key or admin credentials)
 
@@ -122,6 +143,7 @@ Point the gate at a local dev server with `AGENTIC_LICENSE_SERVER=http://localho
 |---|---|
 | `valid: false`, reason "Invalid license format" / "Invalid signature" | Wrong or truncated key — copy it again from the checkout confirmation page. |
 | `valid: false`, reason mentions the plan | Your key's plan is below Pro — [upgrade at checkout](https://skills.animotion.click/checkout?plan=pro). |
+| Mode E (`/awd-mode-e*`) rejected: plan below "template" | Expected — Mode E needs the **Template plan** ($25/month): [upgrade at checkout](https://skills.animotion.click/checkout?plan=template). Pro and Studio keys do not cover Mode E by design; a Template key covers every mode. |
 | `valid: false`, reason "Email not whitelisted" | Admin path but the email isn't on the server whitelist — use a Pro key instead. |
 | `valid: false`, reason "Invalid admin secret" | `AGENTIC_ADMIN_SECRET` doesn't match the server's `ADMIN_SECRET`. |
 | Skill keeps asking for the key | Verdict cache expired or unwritable — fix credentials, then run one validation; check `~/.animotion-skills/cache/` is writable. |

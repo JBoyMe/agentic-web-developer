@@ -248,6 +248,11 @@ function installPayload(payloadDir, skillDir) {
   if (fs.existsSync(path.join(skillDir, "departments"))) {
     copyRecursive(path.join(skillDir, "departments"), path.join(payloadDir, "departments"));
   }
+  // Shipped generator tooling (e.g. the CineBlock AI Blender add-on). Optional so older
+  // skill archives without an assets/ folder still install.
+  if (fs.existsSync(path.join(skillDir, "assets"))) {
+    copyRecursive(path.join(skillDir, "assets"), path.join(payloadDir, "assets"));
+  }
 }
 
 /* ------------------------------ slash commands ------------------------------ */
@@ -464,7 +469,8 @@ async function resolveLocation(loc, label) {
 
 function readPkg() {
   try {
-    return JSON.parse(fs.readFileSync(path.join(PKG_ROOT, "package.json"), "utf8"));
+    // strip BOM — some editors/PowerShell writes prepend it; JSON.parse would throw
+    return JSON.parse(fs.readFileSync(path.join(PKG_ROOT, "package.json"), "utf8").replace(/^\uFEFF/, ""));
   } catch {
     return null;
   }
@@ -703,6 +709,11 @@ Slash commands (opencode + claude, unless --no-commands):
   /awd-list                                  print every department + stage; start anywhere
   /awd-taste                                 taste training (not a department —
                                              builds/edits your taste profile any time)
+  /awd-assets                                Asset Builder — audio/video/3D in any mode
+                                             (Renderful credits + local Blender)
+  /awd-mode-e                                save the open project as a template / list
+                                             the library (Template plan, $25/month)
+  /awd-mode-e-<template>                     build from a saved template
   -> opencode: ~/.config/opencode/command/   claude: ~/.claude/commands/
 
 Each agent gets its own file format:
