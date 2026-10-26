@@ -41,27 +41,35 @@ const assert = (cond, message) => {
 };
 
 /* --------------------------------------------------------- binary discovery */
+function windowsRoots() {
+  // Installers land in <drive>:\Program Files\Blender Foundation\Blender X.Y\,
+  // but <drive>:\Program Files\blender.exe (portable/zip) happens too.
+  const roots = new Set();
+  if (process.env.ProgramFiles) roots.add(process.env.ProgramFiles);
+  if (process.env["ProgramFiles(x86)"]) roots.add(process.env["ProgramFiles(x86)"]);
+  if (process.env.LOCALAPPDATA) roots.add(path.join(process.env.LOCALAPPDATA, "Programs"));
+  for (let i = 67; i <= 90; i += 1) {
+    const drive = `${String.fromCharCode(i)}:`;
+    if (!fs.existsSync(`${drive}\\`)) continue;
+    roots.add(`${drive}\\Program Files`);
+    roots.add(`${drive}\\Program Files (x86)`);
+  }
+  return [...roots];
+}
+
 function candidates() {
   const list = [];
   if (process.env.BLENDER_BIN) list.push(process.env.BLENDER_BIN);
   list.push(process.platform === "win32" ? "blender.exe" : "blender");
   if (process.platform === "win32") {
-    for (const root of [
-      process.env.ProgramFiles,
-      process.env["ProgramFiles(x86)"],
-      process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "Programs"),
-      "E:\\Program Files",
-      "D:\\Program Files"
-    ]) {
-      if (!root) continue;
+    for (const root of windowsRoots()) {
       // Flat install: <root>\blender.exe
       list.push(path.join(root, "blender.exe"));
       // Versioned install: <root>\Blender Foundation\Blender 5.0\blender.exe
       const foundation = path.join(root, "Blender Foundation");
-      if (fs.existsSync(foundation)) {
-        for (const dir of fs.readdirSync(foundation)) {
-          list.push(path.join(foundation, dir, "blender.exe"));
-        }
+      if (!fs.existsSync(foundation)) continue;
+      for (const dir of fs.readdirSync(foundation)) {
+        list.push(path.join(foundation, dir, "blender.exe"));
       }
     }
   } else if (process.platform === "darwin") {
