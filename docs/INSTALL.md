@@ -10,7 +10,7 @@ The skill installs into **15 AI coding agents** — the same 15 the AnimotionJS 
 # auto-detect your agent (opencode -> claude -> any detected agent)
 npx agentic-web-developer install
 
-# target one agent by key, with your Pro license key saved during install
+# target one agent by key, optionally saving your key during install
 npx agentic-web-developer install --agent=claude --license-key=YOUR_KEY
 
 # install for every supported agent at once
@@ -22,7 +22,7 @@ npx agentic-web-developer detect
 
 Then **restart your AI agent** so it loads the skill.
 
-> **License:** the skill is gated by the Animotion **Pro plan ($7/month)** — on first run it validates your key (or admin credentials) once per session before any work. Pass `--license-key=…` (or `--admin-email` / `--admin-secret`) at install time to wire the credential up front. Paying and full credential setup: **[LICENSING.md](LICENSING.md)**.
+> **License: the skill is free** — no key, no entry validation, install and run. A key is needed only for the three paid gates: **Mode E/F** (Template plan, $25/month), the **Animotion handoff** (Studio, $15/month — the only animation setup allowed), and **asset generation** (prepaid credit top-ups). Pass `--license-key=…` (or `--admin-email` / `--admin-secret`) at install time to wire the credential up front. Details: **[LICENSING.md](LICENSING.md)**.
 
 ### All flags
 
@@ -32,7 +32,7 @@ Then **restart your AI agent** so it loads the skill.
 | `--agent=all` / `--all` | Install for all 15 agents |
 | `--source=<url\|path>` | Skill source: a `.tar.gz`/`.zip` URL, or a local skill folder/archive |
 | `--token=<key>` | Auth token for a private source (else `AWD_TOKEN`) |
-| `--license-key=<key>` | Save your Pro license key to the installed skill (`animotion-config.json` the gate reads) |
+| `--license-key=<key>` | Save your key to the installed skill (`animotion-config.json` the paid gates read — not needed to use the skill) |
 | `--admin-email=<e>` `--admin-secret=<s>` | Admin credentials instead of a key (staff/whitelisted — both required) |
 | `--force` | Overwrite an existing install |
 | `--dry-run` | Print the target paths without writing anything |
@@ -53,7 +53,7 @@ Commands installed (31 files — 16 sources, `awd-*` aliases derived automatical
 
 | Command | Does |
 |---|---|
-| `/agentic-web-developer` | Router — license gate, then Strategy (or the department named in the arguments) |
+| `/agentic-web-developer` | Router — straight to Strategy (or the department named in the arguments); no entry gate |
 | `/agentic-web-developer-strategy` … `-growth` | Enter one of the 11 departments by full name |
 | `/awd-strategy` … `/awd-growth` | The same 11 departments, short alias |
 | `/agentic-web-developer-taste` · `/awd-taste` | Taste training — build or refine the taste profile (works with or without a project; not a department) |
@@ -136,8 +136,8 @@ Get the skill folder itself (the package doesn't contain it — take it from you
 AI Studio has no file system to install into — the skill runs there via paste + URL fetch instead:
 
 1. Paste the skill's `references/ai-studio-system-prompt.md` (the paste-ready contract — **not** the raw `SKILL.md`) into AI Studio's **System instructions**.
-2. Enable the **URL Context** tool — the skill uses it to validate your license and fetch each reference file from `skills.animotion.click` with your key (no env vars, no file attachments).
-3. Add your license key (or admin pair) to the System instructions, or paste it when the gate asks.
+2. Enable the **URL Context** tool — the skill uses it to fetch each reference file from `skills.animotion.click` (and to validate your key for Mode E/F; no env vars, no file attachments).
+3. Add your license key (or admin pair) to the System instructions — only needed for Mode E/F, the Animotion handoff, or credits — or paste it when a gate asks.
 4. Build in **Canvas** as a single HTML file, then **Download the code** and deploy.
 
 Step-by-step, GET license URL, reference URL patterns and session hygiene: the skill's `references/google-ai-studio.md`.
@@ -152,10 +152,10 @@ The skill works without any of this — the Asset Builder falls back to your own
 
 | Transport | Configure | Behaviour |
 |---|---|---|
-| **Managed credits** (recommended) | `AWD_CREDITS_API_URL=https://skills.animotion.click` (installer or env) | Balance and checkout live in the managed credits service; the server holds `RENDERFUL_API_KEY`. Your license key (`AGENTIC_LICENSE_KEY`) authenticates. Buy packs via the checkout link. |
+| **Managed credits** (recommended) | `AWD_CREDITS_API_URL=https://skills.animotion.click` (installer or env) | Balance and checkout live in the managed credits service; the server holds `RENDERFUL_API_KEY`. Your license key (`AGENTIC_LICENSE_KEY`) authenticates. **Top-up packs only** (never expire, no monthly plan grants) — bought via the checkout link from the Asset Builder. |
 | **Local / BYO key** | `RENDERFUL_API_KEY=...` and no proxy URL | Direct Renderful calls; balance in `~/.agentic-web-developer/credits.json` (`AWD_CREDIT_BALANCE` overrides for CI). You manage top-ups. |
 
-Optional: `AWD_CREDITS_CHECKOUT_URL` overrides the static purchase link (`https://skills.animotion.click/credits`), and `BLENDER_BIN` points at a Blender executable that isn't on `PATH`.
+Optional: `AWD_CREDITS_CHECKOUT_URL` sets a static purchase fallback (only when your operator provides one), and `BLENDER_BIN` points at a Blender executable that isn't on `PATH`.
 
 Deploying the proxy yourself (Node ≥ 22.5, Stripe, Renderful, signed file URLs): `server/credits/README.md`; the full release + ops runbook is [PRODUCTION.md](./PRODUCTION.md).
 
@@ -196,6 +196,7 @@ npx animotion-skills install --detect
 ```
 
 - License key (Studio plan, $15/month): https://skills.animotion.click/checkout
+- **Animotion is the only animation setup** this skill allows — no other library may be substituted.
 - Without a key the build still works up to the Motion department (animation handoff), where it stops and asks you to install Animotion.
 
 ## Repository vs npm package vs skill source

@@ -22,7 +22,7 @@ Hard rules:
 - The npm tarball is **public forever**. It must never contain `skill/`, the proxy source, `.env`, or any secret. `scripts/release-check.js` enforces this.
 - The payload URL is **immutable** — never overwrite an uploaded `skilltar.gz`. Old installs keep working only if the old URL keeps serving the old bytes.
 - The proxy is the **only** writer of managed balances. The skill never receives `RENDERFUL_API_KEY`, `STRIPE_SECRET_KEY` or `FILE_SIGNING_SECRET`.
-- Plans (Pro $7 / Studio $15 / Template $25) include **zero** credits. Credits are a separate prepaid purchase.
+- **Credits are top-up packs only.** Monthly plan credits were removed: plans grant no starter allowance. All generation credits come from one-time top-up packs (`checkout.session.completed` → `chk_` intents), which never expire. `invoice.payment_succeeded` grants **nothing** — there is no plan-credit grant path.
 
 ---
 
@@ -224,7 +224,7 @@ SQLite file:
 | Ledger | the backend's existing Postgres (`DATABASE_URL` / `DB_*`) |
 | Account identity | licence **email** (monthly key re-issues keep the balance) |
 | Licence check | in-process `validateLicense()` — no `LICENSE_VALIDATE_URL` |
-| Stripe webhook | `POST /api/stripe/webhook`, shared with plan subscriptions; only `chk_` intents are treated as credit purchases |
+| Stripe webhook | `POST /api/stripe/webhook`, shared with plan subscriptions; only `chk_` intents are treated as credit purchases — `invoice.payment_succeeded` grants nothing (monthly plan credits were removed) |
 | Storage | `passthrough` by default (outputs stay as Renderful CDN URLs, so Vercel's 4.5 MB response cap never applies); R2 is opt-in |
 | Reconciliation | on read + opportunistic + `GET|POST /v1/credits/cron/reconcile` with `x-cron-secret`; no Vercel cron entry |
 
@@ -239,7 +239,9 @@ vercel alias set <deployment-url> skills.animotion.click
 
 Production env already present: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `ADMIN_SECRET`, the DB credentials, `LICENSE_ENCRYPTION_KEY`,
-`CREDITS_CRON_SECRET`, `PUBLIC_BASE_URL=https://skills.animotion.click`.
+`CREDITS_CRON_SECRET`, `PUBLIC_BASE_URL=https://skills.animotion.click`, and the
+plan price ids `STRIPE_PRICE_ID` (Pro), `STUDIO_PRICE_ID`, `TEMPLATE_PRICE_ID`
+(subscriptions unlock the paid gates only — they grant **no** credits).
 `RENDERFUL_API_KEY` is the only key still required for generation — without it
 quotes/models/packs work and generation returns 503.
 
@@ -269,6 +271,10 @@ credits.your-host {
 ```
 
 ### 5.1a Render + Cloudflare (fallback)
+
+> **Not currently deployed.** `credits.animotion.click` has no live host (the
+> Cloudflare record returns 522). Credits run on the folded deployment in §5.0;
+> the instructions below are kept only for a future standalone host.
 
 `render.yaml` at the repo root describes the whole service: the image built from
 the `Dockerfile` at the repo root, a 1 GB disk at `/data`, `/health` as the check, and every
@@ -701,7 +707,8 @@ Restore drill (quarterly): stop the service, restore DB + files to a scratch `DA
 | Manual top-up / support credit | `POST /v1/admin/grant` with `x-admin-secret`, positive integer credits, stable `idempotencyKey` |
 | Fallback checkout paid externally | Verify payment, then grant with the order id as the idempotency key |
 | Stuck job | Check `/health` and logs; jobs fail + refund at their type timeout. Never edit balances by hand |
-| Suspected key leak | Rotate the license key at the validator; the proxy derives accounts from the key, so the old account stops authenticating |
+| Suspected key leak | Rotate the license key at the validator; credits are keyed by licence **email**, so the old key stops authenticating while the balance follows the email |
+| Balance looks wrong | `GET /v1/credits/balance` reports `balance`; only top-up purchases (`chk_` checkout intents) and `POST /v1/admin/grant` should ever change it — check Stripe for the matching `checkout.session.completed` |
 | Secret rotation | Update `.env`, restart; rotate `FILE_SIGNING_SECRET` last (it invalidates outstanding file URLs) |
 
 ### Scaling notes

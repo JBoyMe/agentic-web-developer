@@ -87,7 +87,7 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 
 > "/awd-assets hero loop" — or "generate a voiceover for the demo", "make me a 3D coffee cup for this hero"
 
-**Mode:** the project's own mode (A–E). The Asset Builder is not a mode: it is the single asset pipeline every mode calls. Credits are **separate from the license plan** — say so the first time it comes up.
+**Mode:** the project's own mode (A-E). The Asset Builder is not a mode: it is the single asset pipeline every mode calls — the only way to add assets to a project. There are no monthly plan credits: generation is paid only with prepaid top-up packs (never expire) - say so the first time it comes up.
 
 | Stage | What happens | The gate (you answer) |
 |---|---|---|
@@ -108,7 +108,7 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 - The conversion blueprint and QA checklists (Content + Quality Assurance)
 - Deployment (Deployment — the user always picks the target)
 - **The animation rule:** no motion code is ever written by this skill — Motion hands a motion brief to the **AnimotionJS agentic skill** for all 15 supported agents; **control interactions** for audio/video/3D assets are briefed at AB.5 and built by Animotion **Studio**
-- **The Asset Builder** (`/awd-assets`) — every mode can inventory, route, generate (managed credits, direct Renderful, or local headless Blender), ingest/QA and brief controls for audio, video and 3D; credits are a separate prepaid purchase and every batch passes a credit gate
+- **The Asset Builder** (`/awd-assets`) - every mode can inventory, route, generate (managed credits, direct Renderful, or local headless Blender), ingest/QA and brief controls for audio, video and 3D; Pro/Studio include monthly credits that expire with the paid period, top-ups never expire, and every batch passes a credit gate
 - A question gate at the end of every stage, a progress footer on every response, and `/awd-<dept>` commands to jump into any department
 
 **Mode E difference:** the apply flow runs the **light pipeline** only (Motion → QA → Deploy) — Research/Design/Frontend work is already baked into the template. Gates, footer, taste and the animation rule stay identical.
