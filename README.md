@@ -109,7 +109,7 @@ See **[docs/INSTALL.md](docs/INSTALL.md#manual-install-no-cli)** — per-agent c
 
 ### How to pay for the Template plan (templates)
 
-[Get Template — $25/month](https://skills.animotion.click/checkout?plan=template) — required to save a project as a template, build from a template (`/awd-mode-e*`), or maintain an AWD-built site (`/awd-mode-f*`). Non-Template keys fail that gate by design; Template keys and admin credentials pass. The departments themselves stay free — never stack plans.
+[Get Template — $25/month](https://skills.animotion.click/checkout?plan=template) — required to save a project as a template, build from a template (`/awd-mode-e*`), or maintain an AWD-built site (`/awd-mode-f*`). Non-Template keys fail that gate by design; Template keys and admin credentials pass. The departments themselves stay free — never stack plans. Got a Template key? Install with it below: [How to give the skill your key](#how-to-give-the-skill-your-key-or-admin-credentials).
 
 ### How to give the skill your key (or admin credentials)
 
@@ -129,6 +129,22 @@ npx agentic-web-developer install --all --license-key=YOUR_KEY \
 `--credits-url` wires the **managed credit packs** (prepaid top-ups — the only credits there are) into
 `~/.agentic-web-developer/config.json`; without it there is no generation at all — the Asset Builder prints the credential/top-up gate and stops the asset stage (no local renderer, no user-file fallback, no SVG).
 Packs and prices: [Generation credits](#generation-credits--top-ups-only).
+
+**With your Template plan key (Mode E templates · Mode F maintenance)**
+
+Bought the **Template plan** ([Get Template — $25/month](https://skills.animotion.click/checkout?plan=template))? Install the same way — pass your **Template key** as `--license-key`:
+
+```bash
+# Template key — unlocks Mode E (save a template / build from one) and Mode F (site maintenance):
+npx agentic-web-developer install --agent=<your-agent> --license-key=YOUR_TEMPLATE_KEY \
+  --credits-url=https://skills.animotion.click
+
+# or install for every detected agent at once:
+npx agentic-web-developer install --all --license-key=YOUR_TEMPLATE_KEY \
+  --credits-url=https://skills.animotion.click
+```
+
+The installer saves the key into `animotion-config.json` like any other key. The Mode E/F gate validates it server-side with `plan: "template"` — **Template keys and admin credentials pass; other plans fail that gate by design** ([LICENSING.md](docs/LICENSING.md)). One Template key covers everything Mode E/F need **and** serves credit auth — nothing else to buy or wire: save a template with `/awd-mode-e`, build from one with `/awd-mode-e-<template-name>`, maintain an AWD-built site with `/awd-mode-f*`. The skill itself and Modes A–D stay free either way.
 
 With **admin credentials instead of a license key** (staff / whitelisted emails only):
 
