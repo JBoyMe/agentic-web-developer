@@ -21,12 +21,12 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 | **3 Content** | Agent drafts every word: H1 options, hero, offer stack, plans, reviews, FAQ, contact — real facts only from you (testimonials, pricing, phone) | "Pick the H1 and confirm the primary CTA" · "Full copy draft — approve or edit?" → *"approve"* |
 | **4 Design** | Tool question → *"Stitch"*. Design read declared (style × inspiration + approved deviation · variance/motion/density = 7/5/4 · top bans). Section plan from the anatomy: hero + phone CTA, stat strip, plans grid, how-it-works, reviews, FAQ, quote form. Asset production: hero image, icons, OG image — all generated. Taste audit: **84/100** before the gate | "Which tool — and do you have credentials?" → *"Stitch"* · "Review the design — approve?" → *"approve"* |
 | **5 Frontend** | Framework question → *"plain HTML/CSS + a bit of JS"* (cheap hosting). Dev-toolkit offer → *"no"*. Page(s) built 1:1 from the design, content from `siteconfig.ts`, hero iterated until the pool photo leaves room for the headline | "Look at localhost — review?" → *"looks good"* |
-| **7 Motion** | You're told **all motion goes to AnimotionJS**: hero reveal, scroll reveals, plan-card hover, counter on the stat strip → motion brief written and handed to the Animotion skill | "Animotion installed? Approve the motion brief?" → *"installed, approved"* |
+| **7 Motion** | **All motion is built by the agent** with the modern web-animation stack: hero reveal, scroll reveals, plan-card hover, counter on the stat strip → motion brief written and implemented in the project | "Approve the motion brief?" → *"approved"* |
 | **8 Quality Assurance** | Conversion blueprint + UI/UX checklist: H1 "Pool Cleaning That Never Misses a Week" (6 words), AA contrast, form tested, mobile widths; web-quality audit (Lighthouse/CWV/a11y/SEO); `qa-report.md` | "QA passed — approve?" → *"approve"* |
 | **9 Deployment** | — | "Deploy where: GitHub→Vercel, GoHighLevel, or WordPress?" → *"GitHub → Vercel"* |
-| **10 Growth** | Outreach system: scrapes Phoenix pool companies (Apify, budget-capped), enriches emails, then drafts: *free site as the foot in the door* → hosting retainer ($50–150/mo) → SEO/reviews upsells; Day 1/3/7 follow-ups; analytics wired | "Draft the outreach emails for niche 'pool cleaning'?" → *"send to 20 leads"* |
+| **11 Growth** | Outreach system: scrapes Phoenix pool companies (Apify, budget-capped), enriches emails, then drafts: *free site as the foot in the door* → hosting retainer ($50–150/mo) → SEO/reviews upsells; Day 1/3/7 follow-ups; analytics wired | "Draft the outreach emails for niche 'pool cleaning'?" → *"send to 20 leads"* |
 
-(Backend never ran — static site, recorded as "not required".)
+(Backend never ran — static site, recorded as "not required". Launch is on request — no launch film was asked for here.)
 
 **Result:** a deployed, converting site + a repeatable client-acquisition loop. The same `siteconfig.ts` makes the next local-business site a clone, not a rebuild.
 
@@ -38,7 +38,7 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 
 > "I have a SaaS idea — FocusFlow, a focus timer with team accountability. I want to launch it."
 
-**Mode:** B (novel idea / product launch — no customer list). Re-scopes Strategy validation, Research outliers, Content/Design/Frontend's conversion goal and surface, and Growth's launch motion.
+**Mode:** B (novel idea / product launch — no customer list). Re-scopes Strategy validation, Research outliers, Content/Design/Frontend's conversion goal and surface, and Growth's launch motion. Mode B is also the **Launch** department's primary home — the product launch film is offered on request.
 
 | Department | What happens | The gate (you answer) |
 |---|---|---|
@@ -47,12 +47,13 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 | **3 Content** | Product copy: demo-led hero, feature benefits, pricing tiers, waitlist CTA — voice gate on brand adjectives | "Pick the H1 and confirm CTA: **Join the waitlist**" · "Copy draft — approve?" → *"approve"* |
 | **4 Design** | Tool → *"code-first (Next.js)"* (multi-page app-like site). Product anatomy: demo/video hero, feature grid, integrations logos, pricing tiers, testimonials, FAQ — single CTA | "Approve the design?" → *"approve"* |
 | **5 Frontend** | Framework → *"Next.js"* — multi-page scaffold: `/`, `/pricing`, `/docs`. AI-generated abstract hero matched to the teal palette; waitlist form (email only) wired | "Review on localhost?" → *"approve"* |
-| **7 Motion** | Motion brief to AnimotionJS: hero mask reveal, feature-card scroll stagger, pricing hover lift, waitlist-button magnetic hover | "Animotion installed? Approve brief?" → *"approved"* |
+| **7 Motion** | Motion brief built by the agent (GSAP + Motion + CSS scroll-driven animations): hero mask reveal, feature-card scroll stagger, pricing hover lift, waitlist-button magnetic hover | "Approve brief?" → *"approved"* |
 | **8 Quality Assurance** | Same checklists, goal adjusted: H1 "Focus Together, Finish Faster" (5 words), one CTA everywhere, form → provider tested, responsive pass | "QA passed?" → *"approve"* |
 | **9 Deployment** | — | "Deploy where?" → *"GitHub → Vercel + custom domain"* |
-| **10 Growth** | Re-scoped from cold outreach: waitlist/launch email sequence, founder outreach (remote-work communities, r/SaaS), Product Hunt draft — same email rules (human subject, no hard ask, proof + link); monetization = trial/paid tiers; analytics events on the waitlist | "Draft the launch emails and PH post?" → *"yes"* |
+| **10 Launch** *(on request)* | Product launch film + 5–8s logo sting rendered to MP4 with HyperFrames — material is **agent-exclusive**: live-site capture of the deployed site, an agent screen recording of the real onboarding flow, and the build's own development assets (teal brand, hero imagery, `copy.md` wording) — never screenshots alone. The launch-video format: brand-led scenes, cinematic camera shots (one designed move per scene), animated text, transitions, music/SFX on action — plus cut variants (16:9 master + 9:16 social) and editable captions | "Cut a 20s launch film + logo sting from the site and the build?" → *"yes"* |
+| **11 Growth** | Re-scoped from cold outreach: waitlist/launch email sequence, founder outreach (remote-work communities, r/SaaS), Product Hunt draft — same email rules (human subject, no hard ask, proof + link); monetization = trial/paid tiers; analytics events on the waitlist | "Draft the launch emails and PH post?" → *"yes"* |
 
-**Result:** a live multi-page product site with your brand DNA extracted alongside the inspiration, waitlist converting, and a launch sequence ready to send.
+**Result:** a live multi-page product site with your brand DNA extracted alongside the inspiration, waitlist converting, a launch sequence ready to send — and, on request, the launch film for the waitlist page and social cuts.
 
 ---
 
@@ -68,14 +69,14 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 |---|---|---|
 | **E.S1 Source scan** | Inventories the project: framework, pages, mode, `brand.md`, assets, copy, SEO, deploy target | "Found [11 pages, HTML/CSS, 24 assets, mode A] — save this as a template?" → *"yes"* |
 | **E.S2 Placeholder extraction** | Marks swap points as namespaced tokens `{{AWD:…}}` — logo, business name, phone, H1s, testimonials, pricing, colors/type, links | "Swap slots found: 27 (12 copy, 6 assets, 5 brand, 4 links). Extract all?" → *"yes"* |
-| **E.S3 Sanitization** | Strips `build-state.md`, credentials, personal data, one-off client facts; demo assets marked `keep-demo` | "Sanitize clean — nothing client-specific left?" → *"approve"* |
+| **E.S3 Sanitization** | Strips `build-state.md`, credentials, personal data, one-off client facts, demo and placeholder media; every asset slot is declared so the apply flow must generate or take a brand file | "Sanitize clean — nothing client-specific left?" → *"approve"* |
 | **E.S4 Manifest + save** | Writes `template-manifest.json` (slot contract) + `template.md` card into `~/.agentic-web-developer/templates/<slug>/` | "Name the template: `pool-cleaning-landing`?" → *"pool-cleaning-landing"* |
 
 **Later — you say:**
 
 > "Build me one from the pool-cleaning template for a Phoenix HVAC company." — or `/awd-mode-e-pool-cleaning-landing`
 
-**E.1 → E.6 (apply):** instantiate the template into a new folder (`build-state.md`, `mode: E`) → **swap interview** (one gate per slot group: brand, copy, contact, links) → **Asset Builder** per missing asset (user file · keep demo · generate via the managed credits proxy or Renderful with a credit gate · local Blender · skip) → content/SEO swap → **light pipeline** (Motion brief → QA full pass → Deploy; Research/Design/Frontend skipped — the template already carries them) → sign-off sweep: every `{{AWD:` token gone, zero leftovers.
+**E.1 → E.6 (apply):** instantiate the template into a new folder (`build-state.md`, `mode: E`) → **swap interview** (one gate per slot group: brand, copy, contact, links) → **Asset Builder** per missing asset (two outcomes only: the client's **brand file** as `brand-input`, or a **Renderful generation** through the managed credits proxy behind a quote + credit gate; a short balance prints the top-up gate and stops) → content/SEO swap → **light pipeline** (Motion brief → QA full pass → Deploy; Research/Design/Frontend skipped — the template already carries them) → sign-off sweep: every `{{AWD:` token gone, zero leftovers, no demo asset shipped.
 
 **Result:** a new client site in a fraction of a full build, from a sanitized contract — the same move that turns your first sale into a product line.
 
@@ -87,17 +88,17 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 
 > "/awd-assets hero loop" — or "generate a voiceover for the demo", "make me a 3D coffee cup for this hero"
 
-**Mode:** the project's own mode (A-E). The Asset Builder is not a mode: it is the single asset pipeline every mode calls — the only way to add assets to a project. There are no monthly plan credits: generation is paid only with prepaid top-up packs (never expire) - say so the first time it comes up.
+**Mode:** the project's own mode (A–E). The Asset Builder is not a mode: it is the single asset pipeline every mode calls — the only way to add assets to a project. Exactly two sources: client **brand files** as inputs, and **Renderful generation** through the managed credits proxy. There are no monthly plan credits: generation is paid only with prepaid top-up packs (never expire) — say so the first time it comes up.
 
 | Stage | What happens | The gate (you answer) |
 |---|---|---|
-| **AB.1 Inventory** | Scans the project for missing/weak media and writes one row per slot into `## Assets`: slot, kind, brief, route, model/engine, credits reserved/charged, status | "Found 4 asset slots (hero video, voiceover, 3 product stills, 6 3D props). Build all?" → *"the video + voiceover"* |
-| **AB.2 Route** | Picks the engine per slot: **my file** · **keep existing** · **managed credits / Renderful** (image/audio/video/3D mesh) · **local Blender** (0 credits: block-animation video, full 3D with materials + animation) · **SVG** · **skip** — checks `AWD_CREDITS_API_URL` (or `RENDERFUL_API_KEY`), Blender, balance | "Hero loop: block it in Blender (0 cr) then one Wan 2.6 AI pass (10–20 cr), or straight text→video (10–20 cr)?" → *"block then pass"* |
-| **AB.3 Generate** | Runs the credit gate, then generates in-session: managed proxy quote → create → poll → download signed URL (or direct Renderful create → poll → download); or headless `blender --background --python` (blockout → playblast → AI pass; or mesh → UV → PBR → lights → keyframes → Draco `.glb`) | "Generate **2 assets**? hero-loop · wan-2.6 · **10–20 cr** · voiceover · speech-2.6-turbo · **2–5 cr** — balance 40, reserve 25 → 15" → *"generate"* |
-| **AB.4 Ingest & QA** | Files assets into the project, records dimensions/duration/codec, runs the playback contract (muted/loop/poster/reduced-motion), checks budgets; **records reserved vs settled credits** (managed: the proxy already reconciled; local: deduct after a successful download, refund failures) | "Both ingested and playing. Poster + reduced-motion fallbacks set." → *"approve"* |
-| **AB.5 Control interactions** | Writes a row-per-asset brief (play/pause, scrub, orbit/zoom/reset, mute, scroll-driven playback) and hands it to **Animotion Studio** (the AnimotionJS agentic skill, Studio tier) | "Controls for hero loop + 3D cup are briefed for Animotion — build them now?" → *"yes"* |
+| **AB.1 Inventory** | Scans the project for missing/weak media and writes one row per slot into `## Assets`: slot, kind, brief, source, model, credits reserved/charged, status | "Found 4 asset slots (hero video, voiceover, 3 product stills, 6 3D props). Build all?" → *"the video + voiceover"* |
+| **AB.2 Route** | Exactly two outcomes per slot: **brand-input** (the client owns this exact logo/photo/product shot) or **generate** via the managed credits proxy. Checks the credits balance; a short balance → top-up gate | "Hero loop and voiceover need generation; the 3 product stills are your files. Proceed?" → *"yes"* |
+| **AB.3 Generate** | Runs the credit gate, then generates in-session: proxy quote → create → poll → download signed URL. No direct-Renderful, local or SVG path | "Generate **2 assets**? hero-loop · wan-2.6 · **10–20 cr** · voiceover · speech-2.6-turbo · **2–5 cr** — balance 40, reserve 25 → 15" → *"generate"* |
+| **AB.4 Ingest & QA** | Files assets into the project, records dimensions/duration/codec, runs the playback contract (muted/loop/poster/reduced-motion), checks budgets; **records reserved vs settled credits** (the proxy is the ledger) | "Both ingested and playing. Poster + reduced-motion fallbacks set." → *"approve"* |
+| **AB.5 Control interactions** | Writes a row-per-asset brief (play/pause, scrub, orbit/zoom/reset, mute, scroll-driven playback) and builds it with the modern web-animation stack | "Controls for hero loop + 3D cup are briefed — build them now?" → *"yes"* |
 
-**Never blocks:** no key / no Blender / empty balance → cheaper model (re-gated) · buy credits · user file · keep existing · SVG · skip.
+**Hard stop, never a fake asset:** no proxy / no license key / empty or short balance → the explicit **top-up gate** (pack table + checkout) and the asset stage stops. A retry may drop to a cheaper allowlisted model or a smaller batch (both re-quoted and re-gated). It never substitutes a user file for a non-brand slot, a keep-demo asset, an SVG, another generator or a local renderer.
 
 ---
 
@@ -107,8 +108,9 @@ The skill runs the same **11-department flow** in every mode (Backend runs only 
 - The **taste profile** (read before design, audit before approval, lasting feedback filed back) — train or refine it any time with `/awd-taste`
 - The conversion blueprint and QA checklists (Content + Quality Assurance)
 - Deployment (Deployment — the user always picks the target)
-- **The animation rule:** no motion code is ever written by this skill — Motion hands a motion brief to the **AnimotionJS agentic skill** for all 15 supported agents; **control interactions** for audio/video/3D assets are briefed at AB.5 and built by Animotion **Studio**
-- **The Asset Builder** (`/awd-assets`) - every mode can inventory, route, generate (managed credits, direct Renderful, or local headless Blender), ingest/QA and brief controls for audio, video and 3D; Pro/Studio include monthly credits that expire with the paid period, top-ups never expire, and every batch passes a credit gate
+- **The motion rule:** all motion is built by the agent with the modern web-animation stack (GSAP +ScrollTrigger, Motion, Lenis, Lottie, Rive, Theatre.js, CSS scroll-driven animations + View Transitions, spring physics/WAAPI, three.js + React Three Fiber, matter.js, unicorn-studio) — site animation **and** 3D animation (cameras, shader clocks, particles, ambient systems), no separate install or license needed, `prefers-reduced-motion` respected; **control interactions** for audio/video/3D assets are briefed at AB.5 and built the same way
+- **The product launch film** (Launch, `/awd-launch` — on request, every mode): 15–30s MP4 + 5–8s logo sting via HyperFrames, produced **agent-exclusively** — live-site capture, agent screen recordings and the project's development assets, never screenshots alone — in the launch-video format (brand-led scenes, a designed camera shot per scene, animated text, transitions, music/SFX on action, editable by chat, per-channel cut variants)
+- **The Asset Builder** (`/awd-assets`) — every mode can inventory, route, generate (Renderful through managed top-up credits), ingest/QA and brief controls for image, audio, video and 3D; client brand files are the only non-generated source; every batch passes a credit gate, and a short balance stops the asset stage at the top-up gate
 - A question gate at the end of every stage, a progress footer on every response, and `/awd-<dept>` commands to jump into any department
 
 **Mode E difference:** the apply flow runs the **light pipeline** only (Motion → QA → Deploy) — Research/Design/Frontend work is already baked into the template. Gates, footer, taste and the animation rule stay identical.

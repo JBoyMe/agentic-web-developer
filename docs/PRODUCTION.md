@@ -1,6 +1,6 @@
 # Production runbook
 
-Everything needed to ship **agentic-web-developer 2.3.x** and operate it afterwards: the private skill payload, the npm installer, the managed-credits proxy, Stripe, the local Blender engine, the QA matrix, monitoring and Rollback.
+Everything needed to ship **agentic-web-developer 2.3.x** and operate it afterwards: the private skill payload, the npm installer, the managed-credits proxy (Renderful — the only asset generator), Stripe, the QA matrix, monitoring and Rollback.
 
 Read this top to bottom the first time. After that, use the [release checklist](#release-checklist) at the end.
 
@@ -12,9 +12,9 @@ Read this top to bottom the first time. After that, use the [release checklist](
 
 | Artifact | Contents | Lives at | How it updates |
 |---|---|---|---|
-| **Skill payload** (`skilltar.gz`) | `SKILL.md`, 11 departments, 25 references, templates, `assets/cineblock_ai_blender_addon.py` | Private immutable CDN URL in `package.json → awd.source` | Upload a **new** file, bump `awd.source`, publish a patch |
+| **Skill payload** (`skilltar.gz`) | `SKILL.md`, 11 departments, 27 references, templates | Private immutable CDN URL in `package.json → awd.source` | Upload a **new** file, bump `awd.source`, publish a patch |
 | **npm package** (`agentic-web-developer`) | `bin/install.js`, `commands/`, `docs/`, `README.md`, `package.json` | npm registry | `npm publish` |
-| **Credits service** | `backend/credits/` in the Animotion repo — Postgres ledger, folded into the existing licence/CDN backend at `https://skills.animotion.click` | Vercel (already deployed) | `vercel deploy --prod` from `backend/` |
+| **Credits service** | `backend/credits/` in the license backend repo — Postgres ledger, folded into the existing licence/CDN backend at `https://skills.animotion.click` | Vercel (already deployed) | `vercel deploy --prod` from `backend/` |
 | **Stripe** | Checkout sessions + webhook → credits | Stripe dashboard | Config only |
 
 Hard rules:
@@ -35,13 +35,12 @@ Hard rules:
 - [ ] Stripe account, **live** keys, webhook signing secret.
 - [ ] The deployed backend (`https://skills.animotion.click`) — credits are folded into it, no extra host. A VM/Vercel project is only needed if you choose the standalone fallback in §5.1.
 - [ ] The license validator reachable at `https://skills.animotion.click/api/license/validate`.
-- [ ] A Blender 4.x install on the release machine (and on any machine you claim supports local 3D/video).
 
 ### Tools
 
 - Node **20 LTS** for the folded backend (it uses Postgres). The standalone fallback needs **22.5+** (`node:sqlite`).
 - `git`, `tar`, `curl`, `jq` (optional), `stripe` CLI (optional), `openssl`.
-- Blender on `PATH` or `BLENDER_BIN` set.
+- No local renderer is needed: **every generated asset goes through Renderful via the credits proxy.**
 
 ### Repository sanity
 
@@ -67,7 +66,7 @@ It checks, in order:
 
 1. `package.json` parses, has semver, and `awd.source` is an https `.tar.gz` URL.
 2. Installer floor and proxy floor (`server/credits/package.json` → `engines.node >= 22.5`).
-3. Payload content: `SKILL.md`, 11 departments, 25+ references, 10+ templates, the Blender add-on.
+3. Payload content: `SKILL.md`, 11 departments, 25+ references, 10+ templates, no local-renderer files.
 4. All 16 command sources → 31 installed names, valid frontmatter, `/awd-assets` proxy wording, no stale model ids.
 5. **Pricing math**: every `$min–$max` row equals `ceil(usd / 0.05)`, and every model id is on the verified Renderful allowlist.
 6. Proxy files, `node --check`, 60+ passing tests, `.env.example` keys with blank secrets.
@@ -118,8 +117,8 @@ npm run release:verify
 
 This installs `skilltar.gz` with `bin/install.js` into a throwaway HOME and asserts:
 
-- the skill tree, 25+ references and the CineBlock add-on are present;
-- `SKILL.md` still names the Asset Builder, credits and Blender references;
+- the skill tree (`SKILL.md`, `departments/INDEX.md`, `references/asset-builder.md`, `asset-credits.md`, `mode-e.md`) and 25+ references are present;
+- `SKILL.md` still names the Asset Builder, Stage AB., `asset-credits.md` and `motion-toolkit.md`;
 - all 31 slash commands exist, including `/awd-assets` and `/agentic-web-developer-assets`.
 
 To test a URL instead of the local file (after upload):
@@ -169,7 +168,7 @@ The CDN payload and the skills-server payload are **two different consumers** of
 - [ ] Fetch through the gated route with a real key (GET), e.g.
       `curl -s "https://skills.animotion.click/api/skills/agentic-web-developer/references/ai-studio-system-prompt.md?licenseKey=$KEY" | grep -c "ASSET BUILDER"`
       → `1` on 2.3.x.
-- [ ] `SKILL.md` on the server names the Asset Builder, credits and Blender references (same assertions as `npm run release:verify`).
+- [ ] `SKILL.md` on the server names the Asset Builder, Stage AB., `asset-credits.md` and `motion-toolkit.md` (same assertions as `npm run release:verify`).
 - [ ] No stray `.env`, `dist/`, `server/`, or credential file is inside the deployed tree.
 - [ ] Re-paste the router into AI Studio **System instructions** in a *new* chat and run the freshness check in `skill/references/google-ai-studio.md` → *Updates*.
 
@@ -212,10 +211,10 @@ Confirm `~/.agentic-web-developer/config.json` was written and the skill directo
 
 ## 5. Deploy the credits proxy
 
-### 5.0 The deployed path: folded into the Animotion backend
+### 5.0 The deployed path: folded into the license backend
 
-Credits now run **inside the existing Animotion backend** (`backend/` in the
-Animotion repo, the same Express app that serves licences and the skills CDN) at
+Credits now run **inside the existing license backend** (`backend/` in the
+backend repo, the same Express app that serves licences and the skills CDN) at
 `https://skills.animotion.click`. There is no separate container, no disk and no
 SQLite file:
 
@@ -228,7 +227,7 @@ SQLite file:
 | Storage | `passthrough` by default (outputs stay as Renderful CDN URLs, so Vercel's 4.5 MB response cap never applies); R2 is opt-in |
 | Reconciliation | on read + opportunistic + `GET|POST /v1/credits/cron/reconcile` with `x-cron-secret`; no Vercel cron entry |
 
-Deploy from `backend/` (the Animotion GitHub repo publishes docs only, so this is
+Deploy from `backend/` (the backend GitHub repo publishes docs only, so this is
 **not** a Git push):
 
 ```bash
@@ -492,60 +491,27 @@ store is responsible for confirming the grant.
 
 ---
 
-## 7. Blender (0-credit engine)
+## 7. Asset generation (Renderful only)
 
-The Asset Builder uses local headless Blender for block-animation video and full 3D (mesh → UV → PBR → lights → keyframes → Draco `.glb`). These renders never touch the proxy and spend **0 credits**.
+Every generated asset — image, audio, video, 3D mesh — is produced by **Renderful through the managed credits proxy**. There is no local renderer: the old Blender path, the add-on and its QA scripts were removed from the skill and from this repository. Client **brand files** (logo, brand photography, product shots) enter as inputs and are never generated; everything else is a credit-spending Renderful generation.
 
-### Release-machine check
+Consequences for operations:
 
-```bash
-blender --version
-# or
-export BLENDER_BIN=/path/to/blender
-"$BLENDER_BIN" --version
-```
+- The release machine needs **no GPU and no Blender** — only Node and network access to the proxy.
+- Generation is paid **exclusively with prepaid top-up packs** (no monthly plan credits). A zero or short balance is a **hard stop**: the Asset Builder prints the top-up gate (pack table + `POST /v1/credits/checkout` → Stripe) and the asset stage waits. It never falls back to a demo asset, a skipped slot, a hand-drawn SVG, another generator, or a local renderer.
+- Model ids are pinned to the verified Renderful allowlist (`skill/references/asset-builder.md`); `npm run release:check` fails on anything off-list or mispriced.
 
-If Blender is missing, the skill must fall back (cloud 3D mesh, user file, SVG, skip) rather than fail. That fallback is part of QA below.
-
-### Add-on install
+### Proxy health check (release machine)
 
 ```bash
-# Linux
-mkdir -p ~/.config/blender/4.*/scripts/addons
-cp skill/assets/cineblock_ai_blender_addon.py ~/.config/blender/4.*/scripts/addons/
+curl -s "$AWD_CREDITS_API_URL/v1/credits/balance" -H "x-license-key: $TEST_KEY" | jq
 ```
 
-On macOS/Windows use the equivalent Blender user-scripts path. Enable **CineBlock AI** in Preferences → Add-ons, or install the `.py` through the UI.
+Expect `200` with a numeric balance. `401` = bad/missing key; `402` on a generation = insufficient balance (the skill must show the top-up gate); `5xx` = upstream problem (balances/history keep working, generations refund).
 
-### Headless smoke test
+### Failure ladder (QA must confirm)
 
-```bash
-npm run qa:blender                              # finds Blender automatically
-BLENDER_BIN="/path/to/blender" npm run qa:blender   # explicit binary
-npm run qa:blender -- --keep                    # keep frames + .glb in .blender-smoke/
-```
-
-`scripts/qa-blender.mjs` locates Blender (env → `PATH` → the usual Windows/macOS/Linux install
-paths), then runs `scripts/blender-smoke.py` which loads the add-on, builds a camera rig with the
-deterministic operator, renders three frames of a small blockout, and exports a Draco `.glb`. The
-wrapper then re-parses the GLB in Node and asserts:
-
-- [x] Blender runs headless;
-- [x] the add-on registers and reports its version;
-- [x] the rig operator finishes, adds a `TRACK_TO` constraint and DOF focus, and keyframes the camera;
-- [x] three non-empty PNG frames are written to the output folder;
-- [x] the `.glb` is a valid glTF 2 binary with meshes, and declares `KHR_draco_mesh_compression`
-      as used *and* required;
-- [x] the add-on contains no network/subprocess code, so the local engine cannot spend credits.
-
-Verified 2026-10-26 on **Blender 5.0.1** (Python 3.11.13, Windows): 7/7 checks, 3 frames ≈ 48 kB
-each, 3,140-byte Draco GLB loaded by **three.js r169** in a real browser (`GLB_OK`, 3 meshes, 52
-vertices, `KHR_draco_mesh_compression`). Blender ≥ 4.4 uses slotted Actions; the smoke script reads
-both the legacy `action.fcurves` and the newer `layers/strips/channelbags` shape.
-
-Blender is optional at runtime. If it is missing, the skill must fall back (cloud 3D mesh, user file,
-SVG, skip) rather than fail — do not add `qa:blender` to CI on a runner without Blender. Re-run this
-check on every OS you claim to support and after any Blender major upgrade.
+Cheap model → smaller batch → report the failed slots to the user. Every retry is **re-quoted and re-gated**; each step stays on the allowlist and inside the proxy. There is no zero-credit lane to fall back to.
 
 ---
 
@@ -555,14 +521,13 @@ Run the matrix before every public release, and at least monthly against product
 
 ### 8.0 Automated coverage (no spend, no live Stripe)
 
-Five scripts run the parts of the matrix that do not need a real card or a paid generation:
+Four scripts run the parts of the matrix that do not need a real card or a paid generation:
 
 ```bash
 npm run qa:credits    # real proxy HTTP + SQLite against a local fake Renderful
 npm run qa:catalog    # read-only drift check against the live Renderful catalogue
-npm run qa:blender    # headless add-on + rig + render + Draco GLB (needs Blender, optional)
 npm run qa:stripe     # real Stripe test-mode checkout -> webhook -> grant -> refund
-npm run qa            # unit tests + credits + catalog (no Blender/Stripe required)
+npm run qa            # unit tests + credits + catalog (no Stripe required)
 ```
 
 `qa:stripe` is the only one that talks to Stripe. It needs the Stripe CLI, a test-mode secret key in
@@ -591,9 +556,8 @@ equal to the documented range, and documented credits equal `ceil(usd / $0.05)`.
 Renderful catalogue change; `--tolerance=0.05` relaxes the price comparison.
 
 Last run (2026-10-26): `qa:credits` **33/33**, `qa:catalog` **23/23 documented models**, 580 live
-models (575 priced), `qa:blender` **7/7** on Blender 5.0.1, `qa:stripe` **9/9** (test mode: session
-accepted, real webhook delivered, `purchase +100`, landing page confirmed, refund honoured),
-compatible with `node:sqlite` on Node 25.9.
+models (575 priced), `qa:stripe` **9/9** (test mode: session accepted, real webhook delivered,
+`purchase +100`, landing page confirmed, refund honoured), compatible with `node:sqlite` on Node 25.9.
 
 What still needs a human before launch:
 
@@ -603,7 +567,7 @@ What still needs a human before launch:
 | One live purchase with a real card, then refund | proves the live account end to end; costs Stripe's non-refundable fee and leaves an unrevokable grant |
 | Stripe dashboard webhook delivery to the deployed proxy | needs a public HTTPS endpoint registered in Stripe |
 | One paid generation per kind (image/audio/video/3D) | spends real Renderful credit; quote-only checks prove the pricing path |
-| Blender on each supported OS | `qa:blender` automates the render + GLB on one machine; repeat on macOS/Linux |
+| Short-balance hard stop on a real install | zero balance → top-up gate shown, asset stage stops, no fallback asset appears |
 
 ### 8.1 Install + entry points
 
@@ -623,10 +587,9 @@ Entry points: `/awd-assets` · Design **4.3** · Mode E **E.3** · Mode C asset 
 | Setup | Expected |
 |---|---|
 | `AWD_CREDITS_API_URL` set | managed calls only; no `RENDERFUL_API_KEY` requested |
-| No proxy URL, `RENDERFUL_API_KEY` set | direct Renderful; local balance file used |
-| Neither | no cloud generation; Blender / user file / SVG / skip |
-| Proxy configured **and** a key set | proxy wins; key ignored |
-| `AWD_CREDITS_API_URL` empty string | ignored; config file / direct path used |
+| No proxy URL / no license key | **no generation at all** — the asset stage prints the auth/top-up gate and stops; no direct-Renderful, local or user-file fallback |
+| Proxy configured, user-supplied key present | proxy wins; a user-supplied key is never used or stored |
+| `AWD_CREDITS_API_URL` empty string | treated as unset → same hard stop as above |
 
 ### 8.3 Credit paths
 
@@ -645,18 +608,21 @@ link, live Stripe delivery and a real paid generation remain manual.
 - [ ] Signed URL after expiry → `403`; re-read the job → fresh URL works.
 - [ ] Video `Range` request → `206` with correct bytes.
 - [ ] Stripe webhook replayed → no double credit; amount mismatch → ignored.
-- [ ] Local/BYO mode: deduct only after a successful download; write the refund on failure.
+- [ ] Empty balance blocks generation with the top-up gate; no asset is written and no fallback asset appears.
 
 ### 8.4 Asset coverage
 
-| Kind | Managed test | Local test |
+All asset kinds ship through one route — Renderful via the credits proxy. Client brand files are inputs only.
+
+| Kind | Model | Credits |
 |---|---|---|
-| Image | `flux-dev` text→image | — |
-| Voice | `speech-2.6-turbo` | — |
-| Music/SFX | `music-2.5` / text-to-audio | — |
-| Video | `wan-2.6` (10–20 cr) text→video | Blender blockout + optional AI pass |
-| 3D | `hunyuan3d-v3` mesh (8–30 cr) | full procedural 3D with materials + animation |
-| SVG | — | procedural fallback |
+| Image | `flux-dev` text→image | 1–2 |
+| Voice | `speech-2.6-turbo` | 2–12 |
+| Music/SFX | `music-2.5` / text-to-audio | 2–12 |
+| Video | `wan-2.6` text→video | 10–20 |
+| 3D | `hunyuan3d-v3` mesh | 8–30 |
+
+There is no local lane and no SVG fallback row: an unfilled slot stops the asset stage at the top-up gate.
 
 ### 8.5 Ingest and playback QA
 
@@ -664,12 +630,12 @@ link, live Stripe delivery and a real paid generation remain manual.
 - [ ] Image optimized (WebP where appropriate); video muted/loop/poster; audio has controls; `.glb` uses Draco and loads in the target viewer.
 - [ ] Budgets respected (hero video size/duration; total page weight).
 - [ ] `prefers-reduced-motion` and keyboard fallbacks exist.
-- [ ] Controls (play/scrub, orbit/zoom/reset, mute, scroll-linked rates) were briefed to Animotion Studio, not hand-rolled.
+- [ ] Controls (play/scrub, orbit/zoom/reset, mute, scroll-linked rates) are built by the agent with the modern web-animation stack (`references/motion-toolkit.md`) and tested.
 - [ ] `build-state.md` records route, model, reserved/charged credits and balance after.
 
-### 8.6 Failure ladder (must never block)
+### 8.6 Failure ladder (never fake an asset)
 
-For each of: no proxy, proxy 5xx, validator down, empty balance, Renderful down, no Blender, bad model id — the skill must offer a cheaper model (re-gated), smaller batch, buy credits, user file, keep existing, SVG, or skip.
+For each of: no proxy, proxy 5xx, validator down, empty/short balance, Renderful down, bad model id — the skill may re-quote and retry on a cheaper allowlisted model, shrink the batch (re-gated), or ask the user to buy a top-up. It must **not** substitute a user file for a non-brand slot, keep a demo asset, draw an SVG, call another generator, or skip the slot. If the asset stage cannot proceed, it stops there and says so; the rest of the build continues.
 
 ---
 
@@ -740,16 +706,16 @@ You cannot unpublish after 72 hours; a deprecated version + a fixed patch is the
 1. `git checkout <previous-tag>` and redeploy, or deploy the previous image tag.
 2. `schema.sql` is additive/idempotent — no down-migration is needed for the current schema.
 3. If data is corrupted: stop the service, restore the last DB + files backup together, restart, then replay missing Stripe events from the dashboard (idempotent by event id).
-4. If Renderful is the problem: the proxy keeps serving balances/history; new generations return upstream errors and refund. The skill should fall back to Blender/user files.
+4. If Renderful is the problem: the proxy keeps serving balances/history; new generations return upstream errors and refund. The skill reports the failure and stops the asset stage — it never substitutes a local render or an ungenerated file.
 
 ### Stripe
 
 - Disable a misbehaving webhook endpoint in the dashboard (events stay queued for a while) or rotate `STRIPE_WEBHOOK_SECRET` and restart.
 - Refund charges in Stripe, then reconcile credits per policy. Never bulk-edit balances without a fresh backup.
 
-### Blender
+### Assets (no local renderer)
 
-Local renders are ephemeral and cost 0 credits. If an add-on regression ships, the skill falls back to cloud 3D / user files / SVG. Roll back the payload as above.
+There is nothing local to roll back: every asset is a Renderful generation held by the proxy. If the proxy or Renderful regresses, restore the proxy (§ Credits proxy) and re-run the generation — failed/timeout jobs refund automatically. Never reintroduce a zero-credit asset path.
 
 ---
 
@@ -794,16 +760,16 @@ Copy this into the release issue and tick it.
 - [ ] Proxy `.env` complete; production validation passes
 - [ ] `/health` shows renderful + stripe + stripeWebhook + licenseValidation + 4 packs
 - [ ] Stripe webhook endpoint live and a test purchase credits the balance
-- [ ] Blender smoke test on the release machine; fallback verified without Blender
+- [ ] Short-balance and no-proxy paths verified: top-up gate shown, asset stage stops, no fallback asset
 - [ ] Backup taken before deploy; restore drill current
 
 **QA**
 
-- [ ] Transport matrix (managed / BYO / none) green
+- [ ] Transport matrix (managed / no-proxy hard stop) green
 - [ ] Credit paths: gate, 402, reserve/settle/refund, idempotency, concurrency, expiry
-- [ ] Image, voice, music/SFX, video, 3D, SVG all exercised
+- [ ] Image, voice, music/SFX, video and 3D each generate through the proxy
 - [ ] Playback + reduced motion + budgets checked
-- [ ] Failure ladder offers a fallback in every no-X case
+- [ ] Failure ladder never produces a placeholder, demo asset, SVG, external-generator file or skipped required slot
 
 ---
 
@@ -844,9 +810,7 @@ Copy this into the release issue and tick it.
 | `AWD_CREDITS_API_URL` | Managed proxy base URL (wins over the config file) |
 | `AWD_CREDITS_CHECKOUT_URL` | Override the static purchase link |
 | `AGENTIC_LICENSE_KEY` / `ANIMOTION_LICENSE_KEY` | License key for the gate + proxy auth |
-| `RENDERFUL_API_KEY` | Direct/BYO mode only |
-| `AWD_CREDIT_BALANCE` | CI override for the local balance |
-| `BLENDER_BIN` | Blender executable when not on `PATH` |
+| `AWD_CREDIT_BALANCE` | CI override for the read-only balance display |
 
 ---
 

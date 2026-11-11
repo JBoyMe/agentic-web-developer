@@ -1,6 +1,6 @@
 # Installing agentic-web-developer
 
-The skill installs into **15 AI coding agents** — the same 15 the AnimotionJS skill supports. The installer writes each agent's own file format (`SKILL.md`, `skill.md`, a rules file, or `CONVENTIONS.md`) with the right frontmatter, plus the department playbooks, reference playbooks and templates alongside it. For **opencode** and **Claude Code** it also installs the **slash commands** (`/agentic-web-developer`, `/agentic-web-developer-<dept>`, `/awd-<dept>`) globally.
+The skill installs into **15 AI coding agents**. The installer writes each agent's own file format (`SKILL.md`, `skill.md`, a rules file, or `CONVENTIONS.md`) with the right frontmatter, plus the department playbooks, reference playbooks and templates alongside it. For **opencode** and **Claude Code** it also installs the **slash commands** (`/agentic-web-developer`, `/agentic-web-developer-<dept>`, `/awd-<dept>`) globally.
 
 > **The npm package contains only the installer, slash commands and these docs** — never the skill source or the credits proxy. The installer fetches the skill payload from a *skill source* you configure (see [Skill source](#skill-source)).
 
@@ -22,7 +22,7 @@ npx agentic-web-developer detect
 
 Then **restart your AI agent** so it loads the skill.
 
-> **License: the skill is free** — no key, no entry validation, install and run. A key is needed only for the three paid gates: **Mode E/F** (Template plan, $25/month), the **Animotion handoff** (Studio, $15/month — the only animation setup allowed), and **asset generation** (prepaid credit top-ups). Pass `--license-key=…` (or `--admin-email` / `--admin-secret`) at install time to wire the credential up front. Details: **[LICENSING.md](LICENSING.md)**.
+> **License: the skill is free** — no key, no entry validation, install and run. A key is needed only for the two paid gates: **Mode E/F** (Template plan, $25/month) and **asset generation** (prepaid Renderful credit top-ups). Motion needs no gate — the agent builds it with the modern web-animation stack. Pass `--license-key=…` (or `--admin-email` / `--admin-secret`) at install time to wire the credential up front. Details: **[LICENSING.md](LICENSING.md)**.
 
 ### All flags
 
@@ -57,7 +57,7 @@ Commands installed (31 files — 16 sources, `awd-*` aliases derived automatical
 | `/agentic-web-developer-strategy` … `-growth` | Enter one of the 11 departments by full name |
 | `/awd-strategy` … `/awd-growth` | The same 11 departments, short alias |
 | `/agentic-web-developer-taste` · `/awd-taste` | Taste training — build or refine the taste profile (works with or without a project; not a department) |
-| `/agentic-web-developer-assets` · `/awd-assets` | **Asset Builder** — audio, video and 3D in any mode: inventory → route → generate (managed credits · direct Renderful · local Blender) → ingest/QA → Animotion control brief. Credit gate before every batch; credits sold separately |
+| `/agentic-web-developer-assets` · `/awd-assets` | **Asset Builder** — image, audio, video and 3D in any mode: inventory → route (client brand file **or** Renderful generation) → generate via the managed credits proxy → ingest/QA → control-interaction brief. Credit gate before every batch; a short balance stops the asset stage at the top-up gate |
 | `/agentic-web-developer-mode-e` · `/awd-mode-e` | **Mode E** — save the open project as a template, or list the template library (Template plan, $25/month) |
 | `/agentic-web-developer-mode-e-<template-name>` · `/awd-mode-e-<template-name>` | **Mode E** — build a new project from a saved template (suffix form handled by the skill; no per-template file needed) |
 
@@ -117,7 +117,7 @@ The package author normally sets `awd.source` in `package.json` once, so end use
 Notes:
 
 - **Rules agents** (cursor, continue, augment, amazonq) receive the full skill body as a rules file with agent-specific frontmatter (`globs`, `alwaysApply`, `trigger`, …). The file starts with a pointer to the installed `references/` and `templates/` payload so the agent can read the playbooks on demand.
-- **Aider** has no skill loader — it reads conventions files. The skill lands at `~/.aider/skills/CONVENTIONS.md`. Point Aider at it with `aider --read ~/.aider/skills/CONVENTIONS.md`, or copy that file into a project as `CONVENTIONS.md`. The installer never overwrites a `CONVENTIONS.md` it didn't write (unless you pass `--force`), so an existing Animotion or other conventions file is safe.
+- **Aider** has no skill loader — it reads conventions files. The skill lands at `~/.aider/skills/CONVENTIONS.md`. Point Aider at it with `aider --read ~/.aider/skills/CONVENTIONS.md`, or copy that file into a project as `CONVENTIONS.md`. The installer never overwrites a `CONVENTIONS.md` it didn't write (unless you pass `--force`), so an existing conventions file from another skill is safe.
 - Windows paths are shown with `~` for your user home; `%APPDATA%` is your Roaming app-data folder.
 
 ## Manual install (no CLI)
@@ -137,25 +137,26 @@ AI Studio has no file system to install into — the skill runs there via paste 
 
 1. Paste the skill's `references/ai-studio-system-prompt.md` (the paste-ready contract — **not** the raw `SKILL.md`) into AI Studio's **System instructions**.
 2. Enable the **URL Context** tool — the skill uses it to fetch each reference file from `skills.animotion.click` (and to validate your key for Mode E/F; no env vars, no file attachments).
-3. Add your license key (or admin pair) to the System instructions — only needed for Mode E/F, the Animotion handoff, or credits — or paste it when a gate asks.
+3. Add your license key (or admin pair) to the System instructions — only needed for Mode E/F or credits — or paste it when a gate asks.
 4. Build in **Canvas** as a single HTML file, then **Download the code** and deploy.
 
 Step-by-step, GET license URL, reference URL patterns and session hygiene: the skill's `references/google-ai-studio.md`.
 
 **Updates work differently here.** AI Studio is not an installer target: `npm publish` and `awd.source` update local agents only. The browser model reads whatever is deployed under `https://skills.animotion.click/api/skills/agentic-web-developer/…`, so a release is live there only after that payload is deployed **and** the router is re-pasted. To check freshness, ask the model to fetch `references/ai-studio-system-prompt.md` and quote the `## ASSET BUILDER` heading — absent means the server still serves an older payload. Deploy procedure: [PRODUCTION.md § 3](./PRODUCTION.md).
 
-**Asset generation in AI Studio** is intentionally limited: no shell, no POST, no headers and no filesystem, so the managed credits proxy, direct Renderful and local Blender cannot run. Use user files, AI Studio's own image/video tools (as the "my file" route), hand-built SVG, keep-existing or skip — and hand any genuinely cloud/Blender slot to a local agent with the exact prompt and credit range. Full limits and fallback ladder: the skill's `references/google-ai-studio.md` → *Asset Builder in AI Studio*.
+**Asset generation in AI Studio** needs the same route as everywhere else — Renderful through the managed credits proxy — but the browser has no shell, no POST, no custom headers and no filesystem, so the proxy **cannot run there**. There is one outcome: the asset stage prints the credential/top-up gate and **stops**, and you re-run it in a local agent with the exact prompt and credit range. Client brand files still enter as inputs. There is no user-file, SVG, keep-existing or skip substitution for a generated slot. Full limits: the skill's `references/google-ai-studio.md` → *Asset Builder in AI Studio*.
 
-## Asset generation setup (optional)
+## Asset generation setup
 
-The skill works without any of this — the Asset Builder falls back to your own files, keep-existing, SVG and local Blender. Cloud generation needs **one** of two transports:
+The skill installs and builds without any of this, but **assets require it** — Renderful generation through the managed credits proxy is the only way to add a generated asset. There is exactly **one** transport:
 
 | Transport | Configure | Behaviour |
 |---|---|---|
-| **Managed credits** (recommended) | `AWD_CREDITS_API_URL=https://skills.animotion.click` (installer or env) | Balance and checkout live in the managed credits service; the server holds `RENDERFUL_API_KEY`. Your license key (`AGENTIC_LICENSE_KEY`) authenticates. **Top-up packs only** (never expire, no monthly plan grants) — bought via the checkout link from the Asset Builder. |
-| **Local / BYO key** | `RENDERFUL_API_KEY=...` and no proxy URL | Direct Renderful calls; balance in `~/.agentic-web-developer/credits.json` (`AWD_CREDIT_BALANCE` overrides for CI). You manage top-ups. |
+| **Managed credits** (the only mode) | `AWD_CREDITS_API_URL=https://skills.animotion.click` (installer or env) | Balance and checkout live in the managed credits service; the server holds `RENDERFUL_API_KEY`. Your license key (`AGENTIC_LICENSE_KEY`) authenticates. **Top-up packs only** (never expire, no monthly plan grants) — bought via the checkout link from the Asset Builder. A short balance stops the asset stage at the top-up gate. |
 
-Optional: `AWD_CREDITS_CHECKOUT_URL` sets a static purchase fallback (only when your operator provides one), and `BLENDER_BIN` points at a Blender executable that isn't on `PATH`.
+There is no direct/BYO key mode and no local balance file. No proxy URL or no key → no generation: the Asset Builder says what is missing and stops that stage; the rest of the build may continue.
+
+Optional: `AWD_CREDITS_CHECKOUT_URL` sets a static purchase link (otherwise the proxy's checkout endpoint, with https://skills.animotion.click/credits as the static fallback).
 
 Deploying the proxy yourself (Node ≥ 22.5, Stripe, Renderful, signed file URLs): `server/credits/README.md`; the full release + ops runbook is [PRODUCTION.md](./PRODUCTION.md).
 
@@ -185,19 +186,13 @@ rm -f ~/.cursor/rules/agentic-web-developer.mdc
 rm -rf ~/.cursor/skills/agentic-web-developer
 ```
 
-## Companion: AnimotionJS (required for animation)
+## Motion (built by the agent)
 
-Every site built with this skill gets its **animations from the AnimotionJS agentic skill** — this skill never writes motion code. Install Animotion for the same agent:
+Every site built with this skill gets **all of its motion built by the agent** — site animation *and* 3D animation — with the modern web-animation stack: **GSAP (+ScrollTrigger), Motion (motion.dev / Framer Motion), Lenis, Lottie, Rive, Theatre.js, CSS scroll-driven animations + View Transitions, spring physics / WAAPI, three.js + React Three Fiber (+drei, postprocessing), matter.js, unicorn-studio**. There is **no separate install, no license and no purchase** — motion needs none:
 
-```bash
-npx animotion-skills install --tier=agentic --agent=<agent> --license-key=YOUR_KEY
-npx animotion-skills install --tier=agentic --all --license-key=YOUR_KEY   # every detected agent
-npx animotion-skills install --detect
-```
-
-- License key (Studio plan, $15/month): https://skills.animotion.click/checkout
-- **Animotion is the only animation setup** this skill allows — no other library may be substituted.
-- Without a key the build still works up to the Motion department (animation handoff), where it stops and asks you to install Animotion.
+- No companion skill, no extra key and no subscription — nothing else to install for motion.
+- The agent respects `prefers-reduced-motion` and the project's conversion goals on every build.
+- Full toolkit and technique reference: `skill/references/motion-toolkit.md`.
 
 ## Repository vs npm package vs skill source
 
